@@ -478,7 +478,7 @@ function openDetailScreen(item) {
     let url = '';
     if (item.title) {
       // --- Movie ---
-      url = `https://api.cinezo.net/embed/tmdb-movie-${item.id}`;
+      url = `https://api.cinezo.net/embed/tmdb-movie-${item.id}?Logo=false`;
       document.getElementById('nextBtn').style.display = 'none';
     } else {
       // --- TV Show ---
@@ -487,7 +487,7 @@ function openDetailScreen(item) {
       currentTV = item.id;
       currentSeason = se.season;
       currentEpisode = se.episode;
-      url = `https://api.cinezo.net/embed/tmdb-tv-${item.id}/${se.season}/${se.episode}`;
+      url = `https://api.cinezo.net/embed/tmdb-tv-${item.id}/${se.season}/${se.episode}?logo=false`;
       checkNextEpisode(item.id, se.season, se.episode);
     }
 
@@ -569,7 +569,7 @@ document.getElementById('backBtn').onclick = () => closePlayer();
 document.getElementById('nextBtn').onclick = async () => {
   if (!currentTV) return;
   currentEpisode++;
-  const url = `https://api.cinezo.net/embed/tmdb-tv-${currentTV}/${currentSeason}/${currentEpisode}`;
+  const url = `https://api.cinezo.net/embed/tmdb-tv-${currentTV}/${currentSeason}/${currentEpisode}?logo=false`;
   const iframe = document.getElementById('contentPlayer');
   iframe.src = url;
   iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
