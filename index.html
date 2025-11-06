@@ -477,7 +477,7 @@ function openDetailScreen(item) {
   document.getElementById('watchBtn').onclick = async () => {
     let url = '';
     if (item.title) {
-      url = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
+      url = `https://api.cinezo.net/embed/tmdb-movie-${item.id}`;
       document.getElementById('nextBtn').style.display = 'none';
     } else {
       const se = await selectSeasonEpisode(item.id);
