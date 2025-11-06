@@ -300,7 +300,7 @@ h3 {
 
 <h1>🎬 Popcorn Hub 🍿</h1>
 <h3>Mathematically proven to make your day better :)</h3>
-<h3>(Sorry tv shows don't work we're gonna contact the owner to try to fix it)</h3>
+<h3>Enjoy your silly movies completely ad-free! :P</h3>
 
 <div class="search-container">
   <input type="text" id="searchInput" placeholder="Search movies, TV shows...">
@@ -477,15 +477,17 @@ function openDetailScreen(item) {
   document.getElementById('watchBtn').onclick = async () => {
     let url = '';
     if (item.title) {
+      // --- Movie ---
       url = `https://api.cinezo.net/embed/tmdb-movie-${item.id}`;
       document.getElementById('nextBtn').style.display = 'none';
     } else {
+      // --- TV Show ---
       const se = await selectSeasonEpisode(item.id);
       if (!se) return;
       currentTV = item.id;
       currentSeason = se.season;
       currentEpisode = se.episode;
-      url = `https://fmovies4u.com/embed/tmdb-tv-${item.id}/season/${se.season}/eps/${se.episode}`;
+      url = `https://api.cinezo.net/embed/tmdb-tv-${item.id}/${se.season}/${se.episode}`;
       checkNextEpisode(item.id, se.season, se.episode);
     }
 
@@ -567,7 +569,7 @@ document.getElementById('backBtn').onclick = () => closePlayer();
 document.getElementById('nextBtn').onclick = async () => {
   if (!currentTV) return;
   currentEpisode++;
-  const url = `https://fmovies4u.com/embed/tmdb-tv-${currentTV}/season/${currentSeason}/eps/${currentEpisode}`;
+  const url = `https://api.cinezo.net/embed/tmdb-tv-${currentTV}/${currentSeason}/${currentEpisode}`;
   const iframe = document.getElementById('contentPlayer');
   iframe.src = url;
   iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
