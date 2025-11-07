@@ -300,10 +300,10 @@ h3 {
 
 <h1>🎬 Popcorn Hub 🍿</h1>
 <h3>Mathematically proven to make your day better :)</h3>
-<h3>Enjoy your silly movies and tv shows completely ad-free! :P</h3>
+<h3>(Sorry tv shows don't work we're gonna contact the owner to try to fix it)</h3>
 
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder="What will you watch today? 👀">
+  <input type="text" id="searchInput" placeholder="Search movies, TV shows...">
   <button id="searchButton" onclick="searchContent()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
 </div>
 
@@ -327,7 +327,7 @@ h3 {
     <p id="detailOverview"></p>
     <div class="buttons">
       <button id="watchBtn"><i class="fa-solid fa-play"></i> Watch Now</button>
-      <button id="trailerBtn"><i class="fa-solid fa-film"></i> Watch Trailer</button>
+      <button id="trailerBtn"><i class="fa-solid fa-film"></i> Trailer</button>
     </div>
   </div>
 </div>
@@ -335,7 +335,7 @@ h3 {
 <!-- Fullscreen Player -->
 <div id="playerContainer">
   <button id="nextBtn"><i class="fa-solid fa-forward"></i> Next Episode</button>
-  <button id="backBtn"><i class="fa-solid fa-arrow-left"></i>Exit</button>
+  <button id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
   <iframe id="contentPlayer" src=""></iframe>
 </div>
 
@@ -477,17 +477,15 @@ function openDetailScreen(item) {
   document.getElementById('watchBtn').onclick = async () => {
     let url = '';
     if (item.title) {
-      // --- Movie ---
-      url = `https://api.cinezo.net/embed/tmdb-movie-${item.id}?Logo=false`;
+      url = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
       document.getElementById('nextBtn').style.display = 'none';
     } else {
-      // --- TV Show ---
       const se = await selectSeasonEpisode(item.id);
       if (!se) return;
       currentTV = item.id;
       currentSeason = se.season;
       currentEpisode = se.episode;
-      url = `https://api.cinezo.net/embed/tmdb-tv-${item.id}/${se.season}/${se.episode}?logo=false`;
+      url = `https://fmovies4u.com/embed/tmdb-tv-${item.id}/season/${se.season}/eps/${se.episode}`;
       checkNextEpisode(item.id, se.season, se.episode);
     }
 
@@ -569,7 +567,7 @@ document.getElementById('backBtn').onclick = () => closePlayer();
 document.getElementById('nextBtn').onclick = async () => {
   if (!currentTV) return;
   currentEpisode++;
-  const url = `https://api.cinezo.net/embed/tmdb-tv-${currentTV}/${currentSeason}/${currentEpisode}?logo=false`;
+  const url = `https://fmovies4u.com/embed/tmdb-tv-${currentTV}/season/${currentSeason}/eps/${currentEpisode}`;
   const iframe = document.getElementById('contentPlayer');
   iframe.src = url;
   iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
