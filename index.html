@@ -4,322 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🎬 Popcorn Hub 🍿 Beta</title>
-
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-pZTSs1..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <style>
 /* --- Body & Fonts --- */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; 
-    padding: 0;
-    background: #0d0d0d;
-    color: #fff;
-    overflow-x: hidden;
-}
-
-/* --- Header --- */
-h1 {
-    text-align: center;
-    padding: 20px 0 5px 0;
-    font-size: 2.5rem;
-}
-h3 {
-    text-align: center;
-    font-weight: 400;
-    color: #ccc;
-    margin-top: -5px;
-    font-size: 16px;
-    font-style: italic;
-}
-
-/* --- Search Bar --- */
-.search-container {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 30px;
-    padding: 12px 20px;
-    backdrop-filter: blur(12px);
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    flex-wrap: wrap;
-    transition: all 0.3s ease;
-}
-#searchInput {
-    flex: 1 1 300px;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    border: none;
-    outline: none;
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-#searchInput:focus, 
-#searchInput:hover {
-    flex: 1 1 450px; /* Expands the input */
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    transform: scale(1.02);
-}
-
-/* Optional pulsing effect while focused */
-@keyframes pulse {
-    0% { box-shadow: 0 0 8px rgba(255,255,255,0.2); }
-    50% { box-shadow: 0 0 16px rgba(255,255,255,0.4); }
-    100% { box-shadow: 0 0 8px rgba(255,255,255,0.2); }
-}
-#searchInput:focus {
-    animation: pulse 1.5s infinite;
-}
-
-#searchButton {
-    padding: 12px 24px;
-    border-radius: 25px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    background: #f5f5f5;
-    color: #111;
-    transition: all 0.3s;
-}
-#searchButton:hover {
-    transform: scale(1.05);
-}
-
-/* --- Grids --- */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 0 20px 40px;
-}
-
-/* --- Movie/TV Cards --- */
-.movie-card, .cont-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.movie-card img, .cont-card img {
-    width: 100%;
-    height: 330px;
-    object-fit: cover;
-    transition: transform 0.3s;
-}
-.cont-card img {
-    height: 250px;
-}
-.movie-card:hover img, .cont-card:hover img {
-    transform: scale(1.05);
-}
-.movie-card .overlay {
-    position: absolute;
-    top:0; left:0; right:0; bottom:0;
-    background: rgba(0,0,0,0.4);
-    opacity: 0;
-    transition: opacity 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 50px;
-    color: #fff;
-}
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #0d0d0d; color: #fff; overflow-x: hidden; }
+h1 { text-align: center; padding: 20px 0 5px 0; font-size: 2.5rem; }
+h3 { text-align: center; font-weight: 400; color: #ccc; margin-top: -5px; font-size: 16px; font-style: italic; }
+.search-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; padding: 12px 20px; backdrop-filter: blur(12px); background: rgba(255,255,255,0.08); border-radius: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); flex-wrap: wrap; }
+#searchInput { flex: 1 1 300px; padding: 12px 20px; font-size: 16px; border-radius: 25px; border: none; outline: none; background: rgba(255,255,255,0.05); color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+#searchButton { padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; background: #f5f5f5; color: #111; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 0 20px 40px; }
+.movie-card, .cont-card { position: relative; overflow: hidden; border-radius: 12px; cursor: pointer; }
+.movie-card img, .cont-card img { width: 100%; height: 330px; object-fit: cover; }
+.cont-card img { height: 250px; }
+.movie-card .overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4); opacity: 0; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #fff; }
 .movie-card:hover .overlay { opacity: 1; }
-.movie-card .title {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
-    color: #fff;
-    padding: 10px;
-    font-weight: bold;
-    text-align: center;
-}
-.cont-card .remove-btn {
-    position: absolute;
-    top: 5px; right: 5px;
-    background: #f44336;
-    border: none;
-    border-radius: 12px;
-    padding: 5px 8px;
-    color: #fff;
-    cursor: pointer;
-    display: none;
-}
+.movie-card .title { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent); color: #fff; padding: 10px; font-weight: bold; text-align: center; }
+.cont-card .remove-btn { position: absolute; top: 5px; right: 5px; background: #f44336; border: none; border-radius: 12px; padding: 5px 8px; color: #fff; cursor: pointer; display: none; }
 .cont-card:hover .remove-btn { display: block; }
-
-/* --- Buttons --- */
-#loadMoreBtn {
-    display: block;
-    margin: 20px auto 40px;
-    padding: 12px 30px;
-    font-size: 16px;
-    border: none;
-    border-radius: 25px;
-    background: #FFFFFF;
-    color: #000000;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-#loadMoreBtn:hover { transform: scale(1.05); }
-
-/* --- Detail Screen --- */
-#detailScreen {
-    display: none;
-    position: fixed;
-    top:0; left:0;
-    width: 100vw;
-    height: 100vh;
-    background: #111;
-    z-index: 9999;
-    overflow-y: auto;
-    padding: 40px 20px;
-    box-sizing: border-box;
-    color: #fff;
-    animation: fadeIn 0.5s;
-    flex-direction: column;
-    align-items: center;
-}
-#detailScreen .closeDetail {
-    position: fixed;
-    top: 20px; right: 20px;
-    font-size: 36px;
-    background: none; border: none;
-    color: #fff; cursor: pointer;
-    z-index: 10001;
-    transition: all 0.3s;
-}
-#detailScreen .closeDetail:hover { color: #e50914; transform: scale(1.2); }
+#loadMoreBtn { display: block; margin: 20px auto 40px; padding: 12px 30px; font-size: 16px; border: none; border-radius: 25px; background: #FFFFFF; color: #000000; cursor: pointer; font-weight: 600; }
+#detailScreen { display: none; position: fixed; top:0; left:0; width: 100vw; height: 100vh; background: #111; z-index: 9999; overflow-y: auto; padding: 40px 20px; box-sizing: border-box; color: #fff; flex-direction: column; align-items: center; }
+#detailScreen .closeDetail { position: fixed; top: 20px; right: 20px; font-size: 36px; background: none; border: none; color: #fff; cursor: pointer; }
 #detailScreen .banner img { width: 100%; max-height: 60vh; object-fit: cover; border-radius: 16px; }
 #detailScreen .info { max-width: 800px; margin: 20px auto; text-align: center; }
 #detailScreen h2 { margin: 10px 0; font-size: 32px; }
 #detailScreen .rating { margin-bottom: 15px; font-weight: bold; color: #ffd700; }
 #detailScreen p { font-size: 18px; line-height: 1.5; color: #ccc; }
-#detailScreen .buttons {
-    display: none;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
-#detailScreen .buttons button {
-    padding: 15px 30px;
-    font-size: 18px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
+#detailScreen .buttons { display: none; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+#detailScreen .buttons button { padding: 15px 30px; font-size: 18px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
 #watchBtn { background: #e50914; color: #fff; }
-#watchBtn:hover { transform: scale(1.05); }
 #trailerBtn { background: rgba(255,255,255,0.1); color: #fff; }
-#trailerBtn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
-
-/* --- Fullscreen Player --- */
-#playerContainer {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 10000;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#playerContainer iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-#backBtn, #nextBtn {
-    position: absolute;
-    top: 20px;
-    z-index: 10001;
-    background: rgba(0,0,0,0.8);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+#playerContainer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; }
+#playerContainer iframe { width: 100%; height: 100%; border: none; }
+#backBtn, #nextBtn { position: absolute; top: 20px; z-index: 10001; background: rgba(0,0,0,0.8); color: #fff; border: none; border-radius: 12px; padding: 10px 16px; font-size: 18px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 #backBtn { right: 20px; }
 #nextBtn { left: 20px; }
-#backBtn:hover, #nextBtn:hover { background: rgba(0,0,0,1); transform: scale(1.05); }
-
-/* --- Continue Watching Section --- */
 #continueWatchingSection { display: none; margin: 20px 0; }
 #continueWatchingSection h2 { margin-left: 20px; font-size: 1.4rem; }
-#continueWatching {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 0 20px;
-}
-
-/* --- Animations --- */
+#continueWatching { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 0 20px; }
+#toastContainer { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 12px 20px; background: rgba(0,0,0,0.7); color: #fff; border-radius: 12px; min-width: 200px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-
-/* --- Toast --- */
-#toastContainer {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.toast {
-    padding: 12px 20px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    border-radius: 12px;
-    min-width: 200px;
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    animation: fadeIn 0.4s ease;
-}
 </style>
 </head>
 <body>
 
 <h1>🎬 Popcorn Hub 🍿 Beta</h1>
 <h3>Mathematically proven to make your day better :)</h3>
-<h3> How's you're day going?</h3>
+<h3>How's your day going, Andy?</h3>
 
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder=" What are your gonna watch today? 🍿">
-  <button id="searchButton" onclick="searchContent()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+  <input type="text" id="searchInput" placeholder=" What are you gonna watch today? 🍿">
+  <button id="searchButton"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
 </div>
 
-<!-- Continue Watching -->
 <div id="continueWatchingSection">
-  <i class="fa-solid fa-play-circle text-blue-500"></i>
-  Continue Watching
-</h2>
+  <h2><i class="fa-solid fa-play-circle"></i> Continue Watching</h2>
   <div id="continueWatching"></div>
 </div>
 
-<!-- Trending -->
 <div id="trending" class="grid"></div>
-<button id="loadMoreBtn" onclick="loadMore()">load more results</button>
+<button id="loadMoreBtn">load more results</button>
 
-<!-- Detail Screen -->
 <div id="detailScreen">
   <button class="closeDetail"><i class="fa-solid fa-xmark"></i></button>
   <div class="banner"><img id="detailImage" src="" alt=""></div>
@@ -334,386 +80,80 @@ h3 {
   </div>
 </div>
 
-<!-- Fullscreen Player -->
 <div id="playerContainer">
   <button id="nextBtn"><i class="fa-solid fa-forward"></i> Next Episode</button>
   <button id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
   <iframe id="contentPlayer" src=""></iframe>
 </div>
-
 <div id="toastContainer"></div>
-
 <script>
-// --- TMDB API Key ---
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
+// --- TMDB API Key --- const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
 
-let trendingData = [];
-let currentIndex = 0;
-const ITEMS_PER_PAGE = 15;
-let currentTV = null, currentSeason = null, currentEpisode = null;
+let trendingData = []; let currentIndex = 0; const ITEMS_PER_PAGE = 15; let currentTV = null, currentSeason = null, currentEpisode = null;
 
-// --- Toast ---
-function showToast(msg, dur = 3000) {
-  const container = document.getElementById('toastContainer');
-  if (!container) return console.warn('Toast container missing');
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  container.appendChild(t);
-  setTimeout(() => { 
-    t.style.opacity = '0'; 
-    setTimeout(() => container.removeChild(t), 400); 
-  }, dur);
-}
+// --- Toast --- function showToast(msg, dur = 3000) { const container = document.getElementById('toastContainer'); if (!container) return console.warn('Toast container missing'); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => container.removeChild(t), 400); }, dur); }
 
-// --- Load Trending ---
-async function loadTrending() {
-  try {
-    const [movieResp, tvResp] = await Promise.all([
-      fetch('https://api.themoviedb.org/3/trending/movie/week', { headers: { Authorization: `Bearer ${API_KEY}` } }),
-      fetch('https://api.themoviedb.org/3/trending/tv/week', { headers: { Authorization: `Bearer ${API_KEY}` } })
-    ]);
+// --- Load Trending --- async function loadTrending() { try { const [movieResp, tvResp] = await Promise.all([ fetch('https://api.themoviedb.org/3/trending/movie/week', { headers: { Authorization: Bearer ${API_KEY} } }), fetch('https://api.themoviedb.org/3/trending/tv/week', { headers: { Authorization: Bearer ${API_KEY} } }) ]);
 
-    if (!movieResp.ok || !tvResp.ok) {
-      console.error('TMDB trending fetch failed', movieResp.status, tvResp.status);
-      showToast('Failed to load trending content');
-      return;
-    }
+const movieData = await movieResp.json();
+const tvData = await tvResp.json();
 
-    const movieData = await movieResp.json();
-    const tvData = await tvResp.json();
+trendingData = [
+  ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
+  ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
+];
 
-    trendingData = [
-      ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
-      ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
-    ];
+trendingData.sort((a,b) => (b.popularity || 0) - (a.popularity || 0));
+currentIndex = 0;
+document.getElementById('trending').innerHTML = '';
+loadMore();
 
-    // Optional: sort so more popular items appear first
-    trendingData.sort((a,b) => (b.popularity || 0) - (a.popularity || 0));
+} catch (err) { console.error(err); showToast('Failed to load trending content'); } }
 
-    currentIndex = 0;
-    document.getElementById('trending').innerHTML = '';
-    if (trendingData.length === 0) {
-      showToast('No trending content found');
-      document.getElementById('loadMoreBtn').style.display = 'none';
-      return;
-    }
-    loadMore();
-  } catch (err) {
-    console.error(err);
-    showToast('Failed to load trending content');
-  }
-}
+// --- Create Card --- function createCard(item) { const card = document.createElement('div'); card.className = 'movie-card'; const title = item.title || item.name || 'Untitled'; const imgPath = item.poster_path ? https://image.tmdb.org/t/p/w500${item.poster_path} : 'https://via.placeholder.com/500x750?text=No+Image'; card.innerHTML =  <img src="${imgPath}" alt="${title}"> <div class="title">${title}</div> <div class="overlay"><i class="fa-solid fa-play"></i></div>; card.onclick = () => openDetailScreen(item); return card; }
 
-// --- Create Card ---
-function createCard(item) {
-  const card = document.createElement('div');
-  card.className = 'movie-card';
-  const title = item.title || item.name || 'Untitled';
-  const imgPath = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
-  card.innerHTML = `
-    <img src="${imgPath}" alt="${title}">
-    <div class="title">${title}</div>
-    <div class="overlay"><i class="fa-solid fa-play"></i></div>`;
-  // attach the media type so openDetailScreen can tell the difference
-  card.onclick = () => openDetailScreen(item);
-  return card;
-}
+// --- Load More --- function loadMore() { const container = document.getElementById('trending'); const nextItems = trendingData.slice(currentIndex, currentIndex + ITEMS_PER_PAGE); nextItems.forEach(item => container.appendChild(createCard(item))); currentIndex += nextItems.length; document.getElementById('loadMoreBtn').style.display = (currentIndex >= trendingData.length) ? 'none' : 'block'; }
 
-// --- Load More ---
-function loadMore() {
-  const container = document.getElementById('trending');
-  if (!container) return console.warn('Trending container missing');
-  if (!trendingData || trendingData.length === 0) {
-    container.innerHTML = '<p style="color:#ccc; padding:20px;">No results to display.</p>';
-    document.getElementById('loadMoreBtn').style.display = 'none';
-    return;
-  }
+// --- Search --- async function searchContent() { const query = document.getElementById('searchInput').value.trim(); if (!query) return showToast('Enter a search term');
 
-  const nextItems = trendingData.slice(currentIndex, currentIndex + ITEMS_PER_PAGE);
-  nextItems.forEach(item => container.appendChild(createCard(item)));
-  // advance index by number actually appended (prevents overshoot)
-  currentIndex += nextItems.length;
+try { const [movieResp, tvResp] = await Promise.all([ fetch(https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}, { headers: { Authorization: Bearer ${API_KEY} } }), fetch(https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}, { headers: { Authorization: Bearer ${API_KEY} } }) ]);
 
-  document.getElementById('loadMoreBtn').style.display = (currentIndex >= trendingData.length) ? 'none' : 'block';
-}
+const movieData = await movieResp.json();
+const tvData = await tvResp.json();
 
-// --- Search ---
-async function searchContent() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return showToast('Enter a search term');
+trendingData = [
+  ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
+  ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
+];
 
-  try {
-    const [movieResp, tvResp] = await Promise.all([
-      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${API_KEY}` } }),
-      fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${API_KEY}` } })
-    ]);
+currentIndex = 0;
+const container = document.getElementById('trending');
+container.innerHTML = '';
+loadMore();
 
-    if (!movieResp.ok && !tvResp.ok) {
-      console.error('Search fetch failed', movieResp.status, tvResp.status);
-      showToast('Search failed');
-      return;
-    }
+} catch (err) { console.error(err); showToast('Search failed'); } }
 
-    const movieData = await movieResp.json();
-    const tvData = await tvResp.json();
+// --- Detail Screen --- async function openDetailScreen(item) { const detail = document.getElementById('detailScreen'); detail.style.display = 'flex'; document.body.style.overflow = 'hidden'; document.getElementById('detailImage').src = item.backdrop_path ? https://image.tmdb.org/t/p/w780${item.backdrop_path} : item.poster_path ? https://image.tmdb.org/t/p/w500${item.poster_path} : 'https://via.placeholder.com/780x439?text=No+Image'; document.getElementById('detailTitle').textContent = item.title || item.name || 'Untitled'; document.getElementById('detailOverview').textContent = item.overview || 'No description available'; document.getElementById('detailRating').textContent = ⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}; document.querySelector('#detailScreen .buttons').style.display = 'flex';
 
-    trendingData = [
-      ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
-      ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
-    ];
+document.getElementById('watchBtn').onclick = async () => { let url = ''; if (item._media_type === 'movie') { url = https://fmovies4u.com/embed/tmdb-movie-${item.id}; document.getElementById('nextBtn').style.display = 'none'; } else { const se = await selectSeasonEpisode(item.id); if (!se) return; currentTV = item.id; currentSeason = se.season; currentEpisode = se.episode; url = https://fmovies4u.com/embed/tmdb-tv-${item.id}-season/${currentSeason}-eps/${currentEpisode}; await checkNextEpisode(item.id, currentSeason, currentEpisode); } const player = document.getElementById('playerContainer'); player.style.display = 'flex'; const iframe = document.getElementById('contentPlayer'); iframe.src = url; iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms'); document.body.style.overflow = 'hidden'; saveContinueWatching(item); };
 
-    currentIndex = 0;
-    const container = document.getElementById('trending');
-    container.innerHTML = '';
-    if (!trendingData.length) {
-      container.innerHTML = '<p style="color:#ccc; padding:20px;">No results found.</p>';
-      document.getElementById('loadMoreBtn').style.display = 'none';
-      return;
-    }
-    loadMore();
-  } catch (err) {
-    console.error(err);
-    showToast('Search failed');
-  }
-}
+document.getElementById('trailerBtn').onclick = async () => { try { const type = item._media_type; const res = await fetch(https://api.themoviedb.org/3/${type}/${item.id}/videos, { headers: { Authorization: Bearer ${API_KEY} } }); const data = await res.json(); const trailer = (data.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube'); trailer ? window.open(https://www.youtube.com/watch?v=${trailer.key}, '_blank') : showToast('Trailer not available'); } catch (err) { showToast('Failed to load trailer'); } }; }
 
-// --- Select Season/Episode ---
-async function selectSeasonEpisode(tvId) {
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-    if (!res.ok) { showToast('Failed to get show info'); return null; }
-    const data = await res.json();
-    const totalSeasons = data.number_of_seasons || 1;
+// --- Continue Watching --- function saveContinueWatching(item) { const saved = JSON.parse(localStorage.getItem('continueWatching')) || {}; saved[${item.id}-${item._media_type}] = { id: item.id, type: item._media_type, timestamp: Date.now(), season: currentSeason, episode: currentEpisode }; localStorage.setItem('continueWatching', JSON.stringify(saved)); renderContinueWatching(); }
 
-    let season;
-    do {
-      const val = prompt(`Enter season (1-${totalSeasons}):`);
-      if (val === null) return null;
-      season = parseInt(val);
-    } while (!season || season < 1 || season > totalSeasons);
+async function renderContinueWatching() { const section = document.getElementById('continueWatchingSection'); const container = document.getElementById('continueWatching'); container.innerHTML = ''; const saved = JSON.parse(localStorage.getItem('continueWatching')) || {}; const keys = Object.keys(saved); if (!keys.length) { section.style.display = 'none'; return; } section.style.display = 'block'; for (const k of keys) { const s = saved[k]; const card = document.createElement('div'); card.className = 'cont-card'; try { const res = await fetch(https://api.themoviedb.org/3/${s.type}/${s.id}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); const data = await res.json(); const imgSrc = data.poster_path ? https://image.tmdb.org/t/p/w500${data.poster_path} : 'https://via.placeholder.com/500x750?text=No+Image'; card.innerHTML = <img src="${imgSrc}" alt=""><button class="remove-btn"><i class="fa-solid fa-trash"></i></button>; card.onclick = () => openDetailScreen(data); } catch { card.innerHTML = <div style="background:#333; height:250px;"></div>; } const rm = card.querySelector('.remove-btn'); if (rm) { rm.onclick = (e) => { e.stopPropagation(); delete saved[k]; localStorage.setItem('continueWatching', JSON.stringify(saved)); renderContinueWatching(); }; } container.appendChild(card); } }
 
-    const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-    if (!seasonRes.ok) { showToast('Failed to get season info'); return null; }
-    const seasonData = await seasonRes.json();
-    const totalEpisodes = (seasonData.episodes && seasonData.episodes.length) || 1;
+// --- Player Controls --- document.getElementById('backBtn').onclick = () => closePlayer(); document.getElementById('nextBtn').onclick = async () => { if (!currentTV) return; try { let seasonRes = await fetch(https://api.themoviedb.org/3/tv/${currentTV}/season/${currentSeason}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); let seasonData = await seasonRes.json(); currentEpisode++; if (currentEpisode > (seasonData.episodes?.length || 0)) { currentSeason++; currentEpisode = 1; } const url = https://fmovies4u.com/embed/tmdb-tv-${currentTV}-season/${currentSeason}-eps/${currentEpisode}; const iframe = document.getElementById('contentPlayer'); iframe.src = url; await checkNextEpisode(currentTV, currentSeason, currentEpisode); saveContinueWatching({id: currentTV, _media_type: 'tv'}); } catch { showToast('Failed to load next episode'); } };
 
-    let episode;
-    do {
-      const val = prompt(`Enter episode (1-${totalEpisodes}):`);
-      if (val === null) return null;
-      episode = parseInt(val);
-    } while (!episode || episode < 1 || episode > totalEpisodes);
+async function checkNextEpisode(tvId, season, episode) { try { const seasonRes = await fetch(https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); const seasonData = await seasonRes.json(); const tvRes = await fetch(https://api.themoviedb.org/3/tv/${tvId}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); const tvData = await tvRes.json(); document.getElementById('nextBtn').style.display = (episode < (seasonData.episodes?.length || 0) || season < tvData.number_of_seasons) ? 'flex' : 'none'; } catch { document.getElementById('nextBtn').style.display = 'none'; } }
 
-    return { season, episode };
-  } catch (err) {
-    console.error(err);
-    showToast('Failed to fetch season/episode info');
-    return null;
-  }
-}
+function closePlayer() { document.getElementById('playerContainer').style.display = 'none'; document.getElementById('contentPlayer').src = ''; document.body.style.overflow = 'auto'; currentTV = currentSeason = currentEpisode = null; document.getElementById('nextBtn').style.display = 'none'; }
 
-// --- Open Detail Screen ---
-function openDetailScreen(item) {
-  const detail = document.getElementById('detailScreen');
-  if (!detail) return console.warn('Detail screen missing');
-  detail.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('detailImage').src = item.backdrop_path
-    ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}`
-    : item.poster_path
-      ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-      : 'https://via.placeholder.com/780x439?text=No+Image';
-  document.getElementById('detailTitle').textContent = item.title || item.name || 'Untitled';
-  document.getElementById('detailOverview').textContent = item.overview || 'No description available';
-  document.getElementById('detailRating').textContent = `⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}`;
-  document.querySelector('#detailScreen .buttons').style.display = 'flex';
+document.querySelector('#detailScreen .closeDetail').onclick = () => { document.getElementById('detailScreen').style.display = 'none'; document.body.style.overflow = 'auto'; document.querySelector('#detailScreen .buttons').style.display = 'none'; };
 
-  // --- Watch Button ---
-  document.getElementById('watchBtn').onclick = async () => {
-    let url = '';
-    // if item has a title -> movie; otherwise tv
-    if (item.title || item._media_type === 'movie') {
-      url = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
-      document.getElementById('nextBtn').style.display = 'none';
-    } else {
-      const se = await selectSeasonEpisode(item.id);
-      if (!se) return;
-      currentTV = item.id;
-      currentSeason = se.season;
-      currentEpisode = se.episode;
-      url = `https://fmovies4u.com/embed/tmdb-tv-${item.id}-season/${currentSeason}-eps/${currentEpisode}`;
-      await checkNextEpisode(item.id, currentSeason, currentEpisode);
-    }
+// --- Season/Episode selection --- async function selectSeasonEpisode(tvId) { try { const res = await fetch(https://api.themoviedb.org/3/tv/${tvId}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); const data = await res.json(); const totalSeasons = data.number_of_seasons || 1; let season; do { season = parseInt(prompt(Enter season (1-${totalSeasons}):)); if (season === null) return null; } while (!season || season < 1 || season > totalSeasons); const seasonRes = await fetch(https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US, { headers: { Authorization: Bearer ${API_KEY} } }); const seasonData = await seasonRes.json(); const totalEpisodes = (seasonData.episodes && seasonData.episodes.length) || 1; let episode; do { episode = parseInt(prompt(Enter episode (1-${totalEpisodes}):)); if (episode === null) return null; } while (!episode || episode < 1 || episode > totalEpisodes); return { season, episode }; } catch { showToast('Failed to fetch season/episode info'); return null; } }
 
-    const player = document.getElementById('playerContainer');
-    player.style.display = 'flex';
-    const iframe = document.getElementById('contentPlayer');
-    iframe.src = url;
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
-    document.body.style.overflow = 'hidden';
-    saveContinueWatching(item);
-  };
-
-  // --- Trailer Button ---
-  document.getElementById('trailerBtn').onclick = async () => {
-    try {
-      const type = (item.title || item._media_type === 'movie') ? 'movie' : 'tv';
-      const res = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/videos`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-      if (!res.ok) { showToast('Trailer not available'); return; }
-      const data = await res.json();
-      const trailer = (data.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
-      trailer ? window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank') : showToast('Trailer not available');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to load trailer');
-    }
-  };
-}
-
-// --- Save Continue Watching ---
-function saveContinueWatching(item) {
-  const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
-  saved[`${item.id}-${item.title ? 'movie' : 'tv'}`] = {
-    id: item.id,
-    type: item.title ? 'movie' : 'tv',
-    season: currentSeason,
-    episode: currentEpisode,
-    timestamp: Date.now()
-  };
-  localStorage.setItem('continueWatching', JSON.stringify(saved));
-  renderContinueWatching();
-}
-
-// --- Render Continue Watching ---
-async function renderContinueWatching() {
-  const section = document.getElementById('continueWatchingSection');
-  const container = document.getElementById('continueWatching');
-  if (!container || !section) return;
-  container.innerHTML = '';
-  const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
-  const keys = Object.keys(saved);
-  if (!keys.length) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-
-  for (const k of keys) {
-    const s = saved[k];
-    const card = document.createElement('div');
-    card.className = 'cont-card';
-    try {
-      const res = await fetch(`https://api.themoviedb.org/3/${s.type}/${s.id}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-      const data = await res.json();
-      const imgSrc = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
-      card.innerHTML = `<img src="${imgSrc}" alt=""><button class="remove-btn"><i class="fa-solid fa-trash"></i></button>`;
-      card.onclick = () => openDetailScreen(data);
-    } catch (err) {
-      card.innerHTML = `<div style="background:#333; height:250px;"></div>`;
-    }
-    const rm = card.querySelector('.remove-btn');
-    if (rm) {
-      rm.onclick = (e) => {
-        e.stopPropagation();
-        delete saved[k];
-        localStorage.setItem('continueWatching', JSON.stringify(saved));
-        renderContinueWatching();
-      };
-    }
-    container.appendChild(card);
-  }
-}
-
-// --- Player Controls ---
-document.getElementById('backBtn').onclick = () => closePlayer();
-document.getElementById('nextBtn').onclick = async () => {
-  if (!currentTV) return;
-
-  try {
-    let seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${currentSeason}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-    if (!seasonRes.ok) throw new Error('Season fetch failed');
-    let seasonData = await seasonRes.json();
-    let totalEpisodes = (seasonData.episodes && seasonData.episodes.length) || 0;
-
-    currentEpisode++;
-
-    if (currentEpisode > totalEpisodes) {
-      let tvRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-      if (!tvRes.ok) throw new Error('TV fetch failed');
-      let tvData = await tvRes.json();
-
-      if (currentSeason < tvData.number_of_seasons) {
-        currentSeason++;
-        currentEpisode = 1;
-      } else {
-        showToast('You are on the last episode!');
-        document.getElementById('nextBtn').style.display = 'none';
-        return;
-      }
-    }
-
-    const url = `https://fmovies4u.com/embed/tmdb-tv-${currentTV}-season/${currentSeason}-eps/${currentEpisode}`;
-    const iframe = document.getElementById('contentPlayer');
-    iframe.src = url;
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
-
-    await checkNextEpisode(currentTV, currentSeason, currentEpisode);
-
-    const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
-    saved[`${currentTV}-tv`] = { id: currentTV, type: 'tv', season: currentSeason, episode: currentEpisode, timestamp: Date.now() };
-    localStorage.setItem('continueWatching', JSON.stringify(saved));
-    renderContinueWatching();
-
-  } catch (err) {
-    console.error(err);
-    showToast('Failed to load next episode');
-  }
-};
-
-// --- Check Next Episode ---
-async function checkNextEpisode(tvId, season, episode) {
-  try {
-    const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-    if (!seasonRes.ok) throw new Error('Season fetch failed');
-    const seasonData = await seasonRes.json();
-    const tvRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-    if (!tvRes.ok) throw new Error('TV fetch failed');
-    const tvData = await tvRes.json();
-
-    document.getElementById('nextBtn').style.display = (episode < (seasonData.episodes?.length || 0) || season < (tvData.number_of_seasons || 0)) ? 'flex' : 'none';
-  } catch (err) {
-    console.error(err);
-    document.getElementById('nextBtn').style.display = 'none';
-  }
-}
-
-// --- Close Player ---
-function closePlayer() {
-  const player = document.getElementById('playerContainer');
-  player.style.display = 'none';
-  document.getElementById('contentPlayer').src = '';
-  document.body.style.overflow = 'auto';
-  currentTV = null;
-  currentSeason = null;
-  currentEpisode = null;
-  document.getElementById('nextBtn').style.display = 'none';
-}
-
-// --- Close Detail ---
-document.querySelector('#detailScreen .closeDetail').onclick = () => {
-  document.getElementById('detailScreen').style.display = 'none';
-  document.body.style.overflow = 'auto';
-  document.querySelector('#detailScreen .buttons').style.display = 'none';
-};
-
-// --- Initialize ---
-window.onload = () => {
-  loadTrending();
-  renderContinueWatching();
-};
-
-document.getElementById('searchInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchContent();
-});
-document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
+// --- Init --- window.onload = () => { loadTrending(); renderContinueWatching(); }; document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') searchContent(); }); document.getElementById('searchButton').addEventListener('click', searchContent); document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
 </script>
 
 </body>
