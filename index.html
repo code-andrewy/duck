@@ -625,4 +625,96 @@ async function renderContinueWatching() {
 // --- Player Controls ---
 document.getElementById('backBtn').onclick = () => closePlayer();
 document.getElementById('nextBtn').onclick = async () => {
-  if (
+  if (!currentTV) return;
+
+  try {
+    let seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${currentSeason}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+    if (!seasonRes.ok) throw new Error('Season fetch failed');
+    let seasonData = await seasonRes.json();
+    let totalEpisodes = (seasonData.episodes && seasonData.episodes.length) || 0;
+
+    currentEpisode++;
+
+    if (currentEpisode > totalEpisodes) {
+      let tvRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+      if (!tvRes.ok) throw new Error('TV fetch failed');
+      let tvData = await tvRes.json();
+
+      if (currentSeason < tvData.number_of_seasons) {
+        currentSeason++;
+        currentEpisode = 1;
+      } else {
+        showToast('You are on the last episode!');
+        document.getElementById('nextBtn').style.display = 'none';
+        return;
+      }
+    }
+
+    const url = `https://fmovies4u.com/embed/tmdb-tv-${currentTV}-season/${currentSeason}-eps/${currentEpisode}`;
+    const iframe = document.getElementById('contentPlayer');
+    iframe.src = url;
+    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+
+    await checkNextEpisode(currentTV, currentSeason, currentEpisode);
+
+    const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
+    saved[`${currentTV}-tv`] = { id: currentTV, type: 'tv', season: currentSeason, episode: currentEpisode, timestamp: Date.now() };
+    localStorage.setItem('continueWatching', JSON.stringify(saved));
+    renderContinueWatching();
+
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to load next episode');
+  }
+};
+
+// --- Check Next Episode ---
+async function checkNextEpisode(tvId, season, episode) {
+  try {
+    const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+    if (!seasonRes.ok) throw new Error('Season fetch failed');
+    const seasonData = await seasonRes.json();
+    const tvRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+    if (!tvRes.ok) throw new Error('TV fetch failed');
+    const tvData = await tvRes.json();
+
+    document.getElementById('nextBtn').style.display = (episode < (seasonData.episodes?.length || 0) || season < (tvData.number_of_seasons || 0)) ? 'flex' : 'none';
+  } catch (err) {
+    console.error(err);
+    document.getElementById('nextBtn').style.display = 'none';
+  }
+}
+
+// --- Close Player ---
+function closePlayer() {
+  const player = document.getElementById('playerContainer');
+  player.style.display = 'none';
+  document.getElementById('contentPlayer').src = '';
+  document.body.style.overflow = 'auto';
+  currentTV = null;
+  currentSeason = null;
+  currentEpisode = null;
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+// --- Close Detail ---
+document.querySelector('#detailScreen .closeDetail').onclick = () => {
+  document.getElementById('detailScreen').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  document.querySelector('#detailScreen .buttons').style.display = 'none';
+};
+
+// --- Initialize ---
+window.onload = () => {
+  loadTrending();
+  renderContinueWatching();
+};
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchContent();
+});
+document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
+</script>
+
+</body>
+</html>
