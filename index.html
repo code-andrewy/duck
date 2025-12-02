@@ -347,22 +347,22 @@ h3 {
 // --- TMDB API Key ---
 const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
 
+// --- State ---
 let trendingData = [];
 let currentIndex = 0;
 const ITEMS_PER_PAGE = 15;
 let currentTV = null, currentSeason = null, currentEpisode = null;
 
-// helper: determine type consistently
+// --- Helpers ---
+function safeGet(id) { return document.getElementById(id); }
 function getMediaType(item) {
   if (!item) return 'movie';
   if (item._media_type) return item._media_type;
-  // TMDB movies normally have `title`, tv shows `name`
+  // TMDB convention: movies have `title`, tv have `name`
   return item.title ? 'movie' : 'tv';
 }
-
-// --- Toast ---
 function showToast(msg, dur = 3000) {
-  const container = document.getElementById('toastContainer');
+  const container = safeGet('toastContainer');
   if (!container) return console.warn('Toast container missing');
   const t = document.createElement('div');
   t.className = 'toast';
@@ -370,39 +370,37 @@ function showToast(msg, dur = 3000) {
   container.appendChild(t);
   setTimeout(() => { 
     t.style.opacity = '0'; 
-    setTimeout(() => container.removeChild(t), 400); 
+    setTimeout(() => { if (container.contains(t)) container.removeChild(t); }, 400); 
   }, dur);
 }
 
-// --- Load Trending ---
+// --- Trending ---
 async function loadTrending() {
   try {
+    const movieUrl = 'https://api.themoviedb.org/3/trending/movie/week';
+    const tvUrl = 'https://api.themoviedb.org/3/trending/tv/week';
     const [movieResp, tvResp] = await Promise.all([
-      fetch('https://api.themoviedb.org/3/trending/movie/week', { headers: { Authorization: `Bearer ${API_KEY}` } }),
-      fetch('https://api.themoviedb.org/3/trending/tv/week', { headers: { Authorization: `Bearer ${API_KEY}` } })
+      fetch(movieUrl, { headers: { Authorization: `Bearer ${API_KEY}` } }),
+      fetch(tvUrl, { headers: { Authorization: `Bearer ${API_KEY}` } })
     ]);
-
     if (!movieResp.ok || !tvResp.ok) {
-      console.error('TMDB trending fetch failed', movieResp.status, tvResp.status);
+      console.error('Trending fetch failed', movieResp.status, tvResp.status);
       showToast('Failed to load trending content');
       return;
     }
-
     const movieData = await movieResp.json();
     const tvData = await tvResp.json();
-
     trendingData = [
       ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
       ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
     ];
-
     trendingData.sort((a,b) => (b.popularity || 0) - (a.popularity || 0));
-
     currentIndex = 0;
-    document.getElementById('trending').innerHTML = '';
+    const container = safeGet('trending');
+    if (container) container.innerHTML = '';
     if (trendingData.length === 0) {
       showToast('No trending content found');
-      document.getElementById('loadMoreBtn').style.display = 'none';
+      const btn = safeGet('loadMoreBtn'); if (btn) btn.style.display = 'none';
       return;
     }
     loadMore();
@@ -412,7 +410,7 @@ async function loadTrending() {
   }
 }
 
-// --- Create Card ---
+// --- Cards / Pagination ---
 function createCard(item) {
   const card = document.createElement('div');
   card.className = 'movie-card';
@@ -422,59 +420,54 @@ function createCard(item) {
     <img src="${imgPath}" alt="${title}">
     <div class="title">${title}</div>
     <div class="overlay"><i class="fa-solid fa-play"></i></div>`;
-  // attach the media type so openDetailScreen can tell the difference
   card.onclick = () => openDetailScreen(item);
   return card;
 }
 
-// --- Load More ---
 function loadMore() {
-  const container = document.getElementById('trending');
+  const container = safeGet('trending');
+  const btn = safeGet('loadMoreBtn');
   if (!container) return console.warn('Trending container missing');
   if (!trendingData || trendingData.length === 0) {
     container.innerHTML = '<p style="color:#ccc; padding:20px;">No results to display.</p>';
-    document.getElementById('loadMoreBtn').style.display = 'none';
+    if (btn) btn.style.display = 'none';
     return;
   }
-
   const nextItems = trendingData.slice(currentIndex, currentIndex + ITEMS_PER_PAGE);
   nextItems.forEach(item => container.appendChild(createCard(item)));
   currentIndex += nextItems.length;
-
-  document.getElementById('loadMoreBtn').style.display = (currentIndex >= trendingData.length) ? 'none' : 'block';
+  if (btn) btn.style.display = (currentIndex >= trendingData.length) ? 'none' : 'block';
 }
 
 // --- Search ---
 async function searchContent() {
-  const query = document.getElementById('searchInput').value.trim();
+  const input = safeGet('searchInput');
+  const query = input ? input.value.trim() : '';
   if (!query) return showToast('Enter a search term');
-
   try {
+    const movieUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`;
+    const tvUrl = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}`;
     const [movieResp, tvResp] = await Promise.all([
-      fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${API_KEY}` } }),
-      fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${API_KEY}` } })
+      fetch(movieUrl, { headers: { Authorization: `Bearer ${API_KEY}` } }),
+      fetch(tvUrl, { headers: { Authorization: `Bearer ${API_KEY}` } })
     ]);
-
     if (!movieResp.ok && !tvResp.ok) {
       console.error('Search fetch failed', movieResp.status, tvResp.status);
       showToast('Search failed');
       return;
     }
-
     const movieData = await movieResp.json();
     const tvData = await tvResp.json();
-
     trendingData = [
       ...(movieData.results || []).map(i => ({ ...i, _media_type: 'movie' })),
       ...(tvData.results || []).map(i => ({ ...i, _media_type: 'tv' }))
     ];
-
     currentIndex = 0;
-    const container = document.getElementById('trending');
-    container.innerHTML = '';
+    const container = safeGet('trending'); if (container) container.innerHTML = '';
+    const btn = safeGet('loadMoreBtn');
     if (!trendingData.length) {
-      container.innerHTML = '<p style="color:#ccc; padding:20px;">No results found.</p>';
-      document.getElementById('loadMoreBtn').style.display = 'none';
+      if (container) container.innerHTML = '<p style="color:#ccc; padding:20px;">No results found.</p>';
+      if (btn) btn.style.display = 'none';
       return;
     }
     loadMore();
@@ -484,33 +477,29 @@ async function searchContent() {
   }
 }
 
-// --- Select Season/Episode ---
+// --- Season/Episode selector (uses prompt for quick UX) ---
 async function selectSeasonEpisode(tvId) {
   try {
     const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
     if (!res.ok) { showToast('Failed to get show info'); return null; }
     const data = await res.json();
     const totalSeasons = data.number_of_seasons || 1;
-
     let season;
     do {
       const val = prompt(`Enter season (1-${totalSeasons}):`);
       if (val === null) return null;
       season = parseInt(val);
     } while (!season || season < 1 || season > totalSeasons);
-
     const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
     if (!seasonRes.ok) { showToast('Failed to get season info'); return null; }
     const seasonData = await seasonRes.json();
     const totalEpisodes = (seasonData.episodes && seasonData.episodes.length) || 1;
-
     let episode;
     do {
       const val = prompt(`Enter episode (1-${totalEpisodes}):`);
       if (val === null) return null;
       episode = parseInt(val);
     } while (!episode || episode < 1 || episode > totalEpisodes);
-
     return { season, episode };
   } catch (err) {
     console.error(err);
@@ -519,38 +508,31 @@ async function selectSeasonEpisode(tvId) {
   }
 }
 
-// --- Open Detail Screen ---
+// --- Detail Screen ---
 function openDetailScreen(item) {
-  const detail = document.getElementById('detailScreen');
+  const detail = safeGet('detailScreen');
   if (!detail) return console.warn('Detail screen missing');
   detail.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  document.getElementById('detailImage').src = item.backdrop_path
-    ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}`
-    : item.poster_path
-      ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-      : 'https://via.placeholder.com/780x439?text=No+Image';
-  document.getElementById('detailTitle').textContent = item.title || item.name || 'Untitled';
-  document.getElementById('detailOverview').textContent = item.overview || 'No description available';
-  document.getElementById('detailRating').textContent = `⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}`;
-  document.querySelector('#detailScreen .buttons').style.display = 'flex';
+  safeGet('detailImage').src = item.backdrop_path ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` : (item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/780x439?text=No+Image');
+  safeGet('detailTitle').textContent = item.title || item.name || 'Untitled';
+  safeGet('detailOverview').textContent = item.overview || 'No description available';
+  safeGet('detailRating').textContent = `⭐ ${item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}`;
+  const buttons = document.querySelector('#detailScreen .buttons');
+  if (buttons) buttons.style.display = 'flex';
 
-  // store _media_type if not present (keeps behavior consistent later)
+  // attach consistent media type
   if (!item._media_type) item._media_type = getMediaType(item);
 
-  // --- Watch Button ---
-  document.getElementById('watchBtn').onclick = async () => {
+  const watchBtn = safeGet('watchBtn');
+  if (watchBtn) watchBtn.onclick = async () => {
     let url = '';
     const mediaType = getMediaType(item);
-
     if (mediaType === 'movie') {
       url = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
-      document.getElementById('nextBtn').style.display = 'none';
-      // clear any tv-specific globals
-      currentTV = null;
-      currentSeason = null;
-      currentEpisode = null;
-    } else { // tv
+      const nb = safeGet('nextBtn'); if (nb) nb.style.display = 'none';
+      currentTV = currentSeason = currentEpisode = null;
+    } else {
       const se = await selectSeasonEpisode(item.id);
       if (!se) return;
       currentTV = item.id;
@@ -559,18 +541,19 @@ function openDetailScreen(item) {
       url = `https://fmovies4u.com/embed/tmdb-tv-${item.id}-season/${currentSeason}-eps/${currentEpisode}`;
       await checkNextEpisode(item.id, currentSeason, currentEpisode);
     }
-
-    const player = document.getElementById('playerContainer');
-    player.style.display = 'flex';
-    const iframe = document.getElementById('contentPlayer');
-    iframe.src = url;
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+    const player = safeGet('playerContainer');
+    if (player) player.style.display = 'flex';
+    const iframe = safeGet('contentPlayer');
+    if (iframe) {
+      iframe.src = url;
+      iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+    }
     document.body.style.overflow = 'hidden';
-    saveContinueWatching(item); // uses currentSeason/currentEpisode for tv
+    saveContinueWatching(item);
   };
 
-  // --- Trailer Button ---
-  document.getElementById('trailerBtn').onclick = async () => {
+  const trailerBtn = safeGet('trailerBtn');
+  if (trailerBtn) trailerBtn.onclick = async () => {
     try {
       const type = getMediaType(item);
       const res = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/videos`, { headers: { Authorization: `Bearer ${API_KEY}` } });
@@ -585,8 +568,7 @@ function openDetailScreen(item) {
   };
 }
 
-// --- Save Continue Watching ---
-// standardized key: `${id}-${type}`
+// --- Continue Watching (localStorage) ---
 function saveContinueWatching(item) {
   const type = getMediaType(item);
   const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
@@ -601,10 +583,9 @@ function saveContinueWatching(item) {
   renderContinueWatching();
 }
 
-// --- Render Continue Watching ---
 async function renderContinueWatching() {
-  const section = document.getElementById('continueWatchingSection');
-  const container = document.getElementById('continueWatching');
+  const section = safeGet('continueWatchingSection');
+  const container = safeGet('continueWatching');
   if (!container || !section) return;
   container.innerHTML = '';
   const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
@@ -620,11 +601,9 @@ async function renderContinueWatching() {
       const res = await fetch(`https://api.themoviedb.org/3/${s.type}/${s.id}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
       if (!res.ok) throw new Error('detail fetch failed');
       const data = await res.json();
-      // attach type so openDetailScreen knows it
-      data._media_type = s.type;
+      data._media_type = s.type; // ensure media type present
       const imgSrc = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
       card.innerHTML = `<img src="${imgSrc}" alt=""><button class="remove-btn"><i class="fa-solid fa-trash"></i></button>`;
-      // clicking opens detail screen with the fetched data (and correct _media_type)
       card.onclick = () => openDetailScreen(data);
     } catch (err) {
       console.error(err);
@@ -643,11 +622,13 @@ async function renderContinueWatching() {
   }
 }
 
-// --- Player Controls ---
-document.getElementById('backBtn').onclick = () => closePlayer();
-document.getElementById('nextBtn').onclick = async () => {
-  if (!currentTV) return;
+// --- Player Controls (Next/Back) ---
+const backBtn = safeGet('backBtn');
+if (backBtn) backBtn.onclick = () => closePlayer();
 
+const nextBtn = safeGet('nextBtn');
+if (nextBtn) nextBtn.onclick = async () => {
+  if (!currentTV) return;
   try {
     // fetch current season data
     let seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${currentSeason}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
@@ -658,40 +639,41 @@ document.getElementById('nextBtn').onclick = async () => {
     currentEpisode++;
 
     if (currentEpisode > totalEpisodes) {
-      // we need to advance to the next season that actually contains episodes (some seasons can be specials with zero episodes)
+      // try to advance to next season that has episodes (handles newly added seasons)
       const tvRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
       if (!tvRes.ok) throw new Error('TV fetch failed');
       const tvData = await tvRes.json();
       let found = false;
-
       for (let s = currentSeason + 1; s <= (tvData.number_of_seasons || 0); s++) {
-        const nextSeasonRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${s}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
-        if (!nextSeasonRes.ok) continue; // skip if can't fetch
-        const nextSeasonData = await nextSeasonRes.json();
-        const epCount = (nextSeasonData.episodes && nextSeasonData.episodes.length) || 0;
-        if (epCount > 0) {
-          currentSeason = s;
-          currentEpisode = 1;
-          found = true;
-          break;
-        }
+        try {
+          const nextSeasonRes = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${s}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+          if (!nextSeasonRes.ok) continue;
+          const nextSeasonData = await nextSeasonRes.json();
+          const epCount = (nextSeasonData.episodes && nextSeasonData.episodes.length) || 0;
+          if (epCount > 0) {
+            currentSeason = s;
+            currentEpisode = 1;
+            found = true;
+            break;
+          }
+        } catch (e) { continue; }
       }
-
       if (!found) {
         showToast('You are on the last episode!');
-        document.getElementById('nextBtn').style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
         return;
       }
     }
 
     const url = `https://fmovies4u.com/embed/tmdb-tv-${currentTV}-season/${currentSeason}-eps/${currentEpisode}`;
-    const iframe = document.getElementById('contentPlayer');
-    iframe.src = url;
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+    const iframe = safeGet('contentPlayer');
+    if (iframe) {
+      iframe.src = url;
+      iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms');
+    }
 
     await checkNextEpisode(currentTV, currentSeason, currentEpisode);
 
-    // update continue watching (standardized key)
     const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
     saved[`${currentTV}-tv`] = { id: currentTV, type: 'tv', season: currentSeason, episode: currentEpisode, timestamp: Date.now() };
     localStorage.setItem('continueWatching', JSON.stringify(saved));
@@ -704,7 +686,6 @@ document.getElementById('nextBtn').onclick = async () => {
 };
 
 // --- Check Next Episode ---
-// returns boolean whether next exists (also sets nextBtn display)
 async function checkNextEpisode(tvId, season, episode) {
   try {
     const seasonRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
@@ -715,11 +696,10 @@ async function checkNextEpisode(tvId, season, episode) {
     const tvData = await tvRes.json();
 
     const episodesInSeason = seasonData.episodes?.length || 0;
-    // if there's another episode in this season OR there exists a later season that has at least one episode, show next
     let hasNext = (episode < episodesInSeason);
 
     if (!hasNext) {
-      // check for any later season that actually has episodes
+      // check future seasons for episodes (handles newly added seasons)
       for (let s = season + 1; s <= (tvData.number_of_seasons || 0); s++) {
         try {
           const sRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${s}?language=en-US`, { headers: { Authorization: `Bearer ${API_KEY}` } });
@@ -730,45 +710,46 @@ async function checkNextEpisode(tvId, season, episode) {
       }
     }
 
-    document.getElementById('nextBtn').style.display = hasNext ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = hasNext ? 'flex' : 'none';
     return hasNext;
   } catch (err) {
     console.error(err);
-    document.getElementById('nextBtn').style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
     return false;
   }
 }
 
-// --- Close Player ---
+// --- Close Player / Detail ---
 function closePlayer() {
-  const player = document.getElementById('playerContainer');
-  player.style.display = 'none';
-  document.getElementById('contentPlayer').src = '';
+  const player = safeGet('playerContainer');
+  if (player) player.style.display = 'none';
+  const iframe = safeGet('contentPlayer');
+  if (iframe) iframe.src = '';
   document.body.style.overflow = 'auto';
-  // clear in-memory tv playback state (but continueWatching persists in localStorage)
-  currentTV = null;
-  currentSeason = null;
-  currentEpisode = null;
-  document.getElementById('nextBtn').style.display = 'none';
+  currentTV = currentSeason = currentEpisode = null;
+  if (nextBtn) nextBtn.style.display = 'none';
 }
 
-// --- Close Detail ---
-document.querySelector('#detailScreen .closeDetail').onclick = () => {
-  document.getElementById('detailScreen').style.display = 'none';
+const closeDetailBtn = document.querySelector('#detailScreen .closeDetail');
+if (closeDetailBtn) closeDetailBtn.onclick = () => {
+  const detail = safeGet('detailScreen');
+  if (detail) detail.style.display = 'none';
   document.body.style.overflow = 'auto';
-  document.querySelector('#detailScreen .buttons').style.display = 'none';
+  const buttons = document.querySelector('#detailScreen .buttons');
+  if (buttons) buttons.style.display = 'none';
 };
 
-// --- Initialize ---
+// --- Init ---
 window.onload = () => {
   loadTrending();
   renderContinueWatching();
+  // wire up optional elements safely
+  const searchInput = safeGet('searchInput');
+  if (searchInput) searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchContent(); });
+  const loadMoreBtn = safeGet('loadMoreBtn');
+  if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMore);
+  const back = safeGet('backBtn'); if (back) back.onclick = () => closePlayer();
 };
-
-document.getElementById('searchInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchContent();
-});
-document.getElementById('loadMoreBtn').addEventListener('click', loadMore);
 </script>
 
 </body>
