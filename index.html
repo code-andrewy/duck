@@ -9,157 +9,130 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-pZTSs1..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <style>
-/* ------------------------------------------------------- */
-/*                   GLOBAL + THEME                        */
-/* ------------------------------------------------------- */
-
+/* --- Global Reset & Body --- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root {
-    --accent: #e50914;
-    --accent-glow: 0 0 15px rgba(229, 9, 20, 0.9);
-    --glass-dark: rgba(255, 255, 255, 0.06);
-    --glass-light: rgba(255, 255, 255, 0.12);
-    --radius: 18px;
-}
-
 body {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #0c0c0c 20%, #000 100%);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0a0a;
     color: #fff;
     overflow-x: hidden;
     letter-spacing: 0.3px;
 }
 
-/* ------------------------------------------------------- */
-/*                        HEADERS                          */
-/* ------------------------------------------------------- */
-
+/* --- Page Header --- */
 h1 {
     text-align: center;
-    font-size: 3rem;
-    font-weight: 900;
-    padding: 35px 0 10px;
-    background: linear-gradient(90deg, var(--accent), #ff474a);
+    padding: 25px 0 5px;
+    font-size: 2.7rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #e50914, #ff4e50);
     -webkit-background-clip: text;
     color: transparent;
-    text-shadow: var(--accent-glow);
 }
 
 h3 {
     text-align: center;
-    color: #cfcfcf;
-    font-size: 18px;
+    color: #b8b8b8;
     font-style: italic;
-    margin-top: -10px;
+    margin-top: -5px;
+    font-size: 17px;
 }
 
-/* ------------------------------------------------------- */
-/*                      SEARCH BAR                         */
-/* ------------------------------------------------------- */
-
+/* ---------------------- SEARCH BAR ---------------------- */
 .search-container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 15px;
-    width: min(900px, 92%);
-    margin: 30px auto 45px;
-    padding: 18px 24px;
-    background: var(--glass-dark);
-    border-radius: 40px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    gap: 12px;
+    margin: 25px auto 35px;
+    padding: 14px 20px;
+    backdrop-filter: blur(18px);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 35px;
+    width: min(900px, 90%);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
     transition: 0.3s ease;
 }
 
 #searchInput {
     flex: 1;
-    padding: 16px 22px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 35px;
+    padding: 14px 20px;
+    font-size: 17px;
+    border-radius: 30px;
     border: none;
     outline: none;
-    font-size: 17px;
+    background: rgba(255,255,255,0.08);
     color: #fff;
-    transition: 0.35s ease;
+    transition: 0.3s;
 }
 
 #searchInput:hover,
 #searchInput:focus {
-    background: rgba(255,255,255,0.16);
-    box-shadow: 0 0 20px rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
     transform: scale(1.03);
 }
 
-#searchInput:focus {
-    animation: pulse 1.8s infinite;
-}
-
+/* Smooth input pulsing while focused */
 @keyframes pulse {
-    0% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-    50% { box-shadow: 0 0 24px rgba(255,255,255,0.4); }
-    100% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+    0% { box-shadow: 0 0 8px rgba(255,255,255,0.25); }
+    50% { box-shadow: 0 0 18px rgba(255,255,255,0.4); }
+    100% { box-shadow: 0 0 8px rgba(255,255,255,0.25); }
+}
+#searchInput:focus {
+    animation: pulse 1.6s infinite;
 }
 
 #searchButton {
-    padding: 14px 30px;
+    padding: 14px 28px;
+    border-radius: 30px;
     border: none;
-    border-radius: 35px;
-    font-size: 17px;
-    font-weight: 700;
     cursor: pointer;
-    background: linear-gradient(135deg, #fff, #dcdcdc);
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff, #dfdfdf);
     color: #111;
-    transition: 0.3s;
+    transition: 0.25s ease;
 }
-
 #searchButton:hover {
-    transform: scale(1.08);
+    transform: scale(1.07);
     filter: brightness(1.1);
 }
 
-/* ------------------------------------------------------- */
-/*                       MOVIE GRID                        */
-/* ------------------------------------------------------- */
-
+/* ---------------------- MOVIE GRID ---------------------- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 28px;
-    padding: 0 25px 70px;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+    padding: 0 20px 60px;
 }
 
-/* ------------------------------------------------------- */
-/*                      MOVIE CARDS                        */
-/* ------------------------------------------------------- */
-
+/* --- Movie Cards --- */
 .movie-card,
 .cont-card {
     position: relative;
-    border-radius: var(--radius);
+    border-radius: 14px;
     overflow: hidden;
-    background: #111;
     cursor: pointer;
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    background: #121212;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
 .movie-card:hover,
 .cont-card:hover {
-    transform: translateY(-6px) scale(1.04);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5);
 }
 
 .movie-card img,
 .cont-card img {
     width: 100%;
-    height: 340px;
+    height: 330px;
     object-fit: cover;
-    transition: transform 0.45s ease;
+    transition: transform 0.4s ease;
 }
 
 .cont-card img {
@@ -168,186 +141,159 @@ h3 {
 
 .movie-card:hover img,
 .cont-card:hover img {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
-/* --- Play Icon Overlay --- */
+/* Overlay play icon */
 .movie-card .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
+    background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent);
     opacity: 0;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: 45px;
-    font-size: 60px;
+    padding-bottom: 40px;
+    font-size: 55px;
     color: #fff;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.32s ease;
 }
+.movie-card:hover .overlay { opacity: 1; }
 
-.movie-card:hover .overlay {
-    opacity: 1;
-}
-
-/* --- Title Footer --- */
+/* Movie title footer */
 .movie-card .title {
     position: absolute;
     bottom: 0;
-    width: 100%;
-    padding: 14px;
+    left: 0; right: 0;
+    padding: 12px;
     background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
     text-align: center;
-    font-weight: 800;
-    font-size: 17px;
+    font-weight: 700;
+    font-size: 16px;
 }
 
-/* ------------------------------------------------------- */
-/*                   CONTINUE WATCHING                     */
-/* ------------------------------------------------------- */
-
+/* Remove button */
 .cont-card .remove-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--accent);
+    top: 8px; right: 8px;
+    background: #d92a2a;
     border: none;
     border-radius: 12px;
     padding: 6px 10px;
     color: #fff;
-    display: none;
+    font-size: 13px;
     cursor: pointer;
-    font-weight: 600;
+    display: none;
 }
+.cont-card:hover .remove-btn { display: block; }
 
-.cont-card:hover .remove-btn {
-    display: block;
-}
-
-/* ------------------------------------------------------- */
-/*                    LOAD MORE BUTTON                     */
-/* ------------------------------------------------------- */
-
+/* ---------------------- LOAD MORE BUTTON ---------------------- */
 #loadMoreBtn {
     display: block;
-    margin: 40px auto 60px;
-    padding: 16px 34px;
-    border-radius: 40px;
-    border: none;
-    font-size: 18px;
-    font-weight: 800;
+    margin: 30px auto 50px;
+    padding: 14px 34px;
+    border-radius: 35px;
+    font-size: 17px;
+    font-weight: 700;
     background: #fff;
     color: #000;
+    border: none;
     cursor: pointer;
     transition: 0.3s ease;
 }
-
 #loadMoreBtn:hover {
-    transform: scale(1.09);
+    transform: scale(1.08);
+    filter: brightness(1.1);
 }
 
-/* ------------------------------------------------------- */
-/*                      DETAIL SCREEN                      */
-/* ------------------------------------------------------- */
-
+/* ---------------------- DETAIL SCREEN ---------------------- */
 #detailScreen {
     display: none;
     position: fixed;
     inset: 0;
-    background: #080808;
+    background: #0b0b0b;
     z-index: 9999;
+    padding: 45px 20px;
     overflow-y: auto;
-    padding: 50px 20px;
     animation: fadeIn 0.5s ease;
 }
 
 #detailScreen .closeDetail {
     position: fixed;
-    top: 25px;
-    right: 25px;
+    top: 20px; right: 20px;
+    font-size: 36px;
     background: none;
     border: none;
-    font-size: 40px;
     cursor: pointer;
     color: #fff;
-    transition: 0.3s ease;
+    transition: 0.25s ease;
 }
-
 #detailScreen .closeDetail:hover {
-    color: var(--accent);
+    color: #e50914;
     transform: scale(1.2);
 }
 
 #detailScreen .banner img {
     width: 100%;
-    max-height: 70vh;
-    border-radius: 20px;
+    max-height: 65vh;
     object-fit: cover;
+    border-radius: 18px;
 }
 
 #detailScreen .info {
-    max-width: 900px;
-    margin: 30px auto;
     text-align: center;
+    max-width: 900px;
+    margin: 25px auto;
 }
 
 #detailScreen h2 {
-    font-size: 2.5rem;
-    font-weight: 900;
+    font-size: 2.3rem;
+    margin-bottom: 10px;
 }
 
 #detailScreen .rating {
     color: #ffd700;
-    margin-top: 10px;
-    font-size: 18px;
+    margin-bottom: 12px;
+    font-weight: 600;
 }
 
 #detailScreen p {
-    color: #d1d1d1;
-    font-size: 19px;
-    line-height: 1.7;
-    margin-top: 15px;
+    font-size: 18px;
+    color: #ccc;
+    line-height: 1.6;
 }
 
-/* Buttons */
+/* Watch / Trailer buttons */
 #detailScreen .buttons {
     display: none;
     justify-content: center;
-    gap: 22px;
-    margin-top: 25px;
+    gap: 20px;
+    margin-top: 20px;
 }
 
 #detailScreen .buttons button {
-    padding: 16px 36px;
-    border-radius: 35px;
-    border: none;
+    padding: 15px 34px;
+    border-radius: 30px;
     font-size: 18px;
-    font-weight: 800;
+    font-weight: bold;
+    border: none;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.25s;
 }
 
 #watchBtn {
-    background: var(--accent);
+    background: #e50914;
     color: #fff;
 }
-#watchBtn:hover {
-    transform: scale(1.1);
-}
+#watchBtn:hover { transform: scale(1.08); }
 
 #trailerBtn {
-    background: var(--glass-light);
+    background: rgba(255,255,255,0.08);
     color: #fff;
 }
-#trailerBtn:hover {
-    background: var(--glass-dark);
-    transform: scale(1.07);
-}
+#trailerBtn:hover { background: rgba(255,255,255,0.15); transform: scale(1.06); }
 
-/* ------------------------------------------------------- */
-/*                          PLAYER                         */
-/* ------------------------------------------------------- */
-
+/* ---------------------- PLAYER ---------------------- */
 #playerContainer {
     display: none;
     position: fixed;
@@ -355,66 +301,79 @@ h3 {
     background: #000;
     z-index: 10000;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
 #playerContainer iframe {
     width: 100%;
     height: 100%;
-    border: none;
 }
 
 #backBtn,
 #nextBtn {
     position: absolute;
-    top: 25px;
-    padding: 12px 20px;
+    top: 22px;
     background: rgba(0,0,0,0.8);
-    color: #fff;
     border: none;
-    border-radius: 12px;
+    padding: 12px 18px;
     font-size: 18px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: 0.3s;
+    color: #fff;
+    transition: 0.25s ease;
 }
 
 #backBtn:hover,
 #nextBtn:hover {
-    transform: scale(1.1);
+    transform: scale(1.07);
 }
 
+/* Positions */
 #backBtn { right: 25px; }
 #nextBtn { left: 25px; }
 
-/* ------------------------------------------------------- */
-/*                         TOASTS                          */
-/* ------------------------------------------------------- */
+/* ---------------------- CONTINUE WATCHING ---------------------- */
+#continueWatchingSection {
+    display: none;
+    margin: 25px 0;
+}
 
+#continueWatchingSection h2 {
+    margin-left: 20px;
+    font-size: 1.5rem;
+}
+
+#continueWatching {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 18px;
+    padding: 0 20px;
+}
+
+/* ---------------------- TOASTS ---------------------- */
 #toastContainer {
     position: fixed;
     top: 25px;
     right: 25px;
-    z-index: 10000;
+    z-index: 10050;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .toast {
-    padding: 15px 24px;
+    padding: 14px 22px;
     background: rgba(20,20,20,0.85);
     backdrop-filter: blur(12px);
-    border-radius: 16px;
-    font-weight: 600;
     color: #fff;
+    border-radius: 14px;
+    min-width: 220px;
+    font-size: 15px;
     animation: fadeIn 0.4s ease;
 }
 
-/* ------------------------------------------------------- */
-/*                        ANIMATIONS                       */
-/* ------------------------------------------------------- */
-
+/* --- General Fade-In Animation --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
