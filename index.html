@@ -26,6 +26,7 @@ h3 { font-weight: 400; text-align: center; font-size: 14px; color: #bbb; margin-
 .search-container {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 12px 20px;
   margin-bottom: 28px;
@@ -58,7 +59,7 @@ h3 { font-weight: 400; text-align: center; font-size: 14px; color: #bbb; margin-
 /* =================== Grid =================== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
   padding: 0 20px 40px;
 }
@@ -163,7 +164,6 @@ button:hover { transform: scale(1.03); }
   border-radius: 24px;
 }
 #watchBtn { background: #e50914; color: #fff; }
-#pickBtn { background: #222; color: #fff; border: 1px solid #333; }
 #trailerBtn { background: rgba(255,255,255,0.08); color: #fff; }
 
 /* =================== Player =================== */
@@ -196,7 +196,7 @@ button:hover { transform: scale(1.03); }
 #continueWatchingSection { display: none; margin: 18px 0; }
 #continueWatching {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
   padding: 0 20px;
 }
@@ -228,7 +228,6 @@ button:hover { transform: scale(1.03); }
   inset: 0;
   background: rgba(0,0,0,0.85);
   z-index: 11000;
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -253,37 +252,28 @@ button:hover { transform: scale(1.03); }
   padding: 8px 10px;
   border-radius: 10px;
 }
-.episode-row {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 10px 0;
-  scrollbar-width: thin;
+#episodeList { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+  max-height: 300px; 
+  overflow-y: auto; 
+  padding: 10px 0; 
 }
-.episode-btn {
+#episodeList button {
   flex: 0 0 auto;
-  min-width: 88px;
+  min-width: 70px;
   background: #121212;
   border-radius: 10px;
-  padding: 12px;
+  padding: 10px;
   text-align: center;
   color: #ddd;
   font-weight: 700;
   border: 1px solid #222;
   transition: transform 0.15s, background 0.2s;
 }
-.episode-btn:hover { transform: translateY(-2px); background: #1a1a1a; }
-.episode-btn .ep-title {
-  display: block;
-  font-size: 12px;
-  color: #bbb;
-  margin-top: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.episode-btn.active { outline: 3px solid #e50914; transform: translateY(-4px); color: #fff; }
-.episode-btn.watched { opacity: 0.9; border-color: #444; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+#episodeList button:hover { transform: translateY(-2px); background: #1a1a1a; }
+#episodeList button.active { outline: 3px solid #e50914; transform: translateY(-4px); color: #fff; }
 
 .picker-actions {
   display: flex;
@@ -304,13 +294,13 @@ button:hover { transform: scale(1.03); }
 }
 @media (max-width: 768px) {
   .movie-card img, .cont-card img { height: 240px; }
-  .episode-btn { min-width: 70px; padding: 8px; }
-  .episode-btn .ep-title { display: none; }
+  #episodeList button { min-width: 60px; padding: 8px; font-size: 14px; }
 }
 @media (max-width: 480px) {
   #searchInput { font-size: 14px; }
   h1 { font-size: 2rem; }
   .movie-card .title { font-size: 14px; }
+  #episodeList button { min-width: 50px; padding: 6px; font-size: 12px; }
 }
 </style>
 </head>
