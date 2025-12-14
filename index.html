@@ -364,34 +364,10 @@ let playerContainer = null;
 
 // --- Helpers ---
 function safeGet(id){ return document.getElementById(id); }
-function getMediaType(item){
-  if(!item) return 'movie';
-  if(item._media_type) return item._media_type;
-  return item.title ? 'movie' : 'tv';
-}
-function showToast(msg, dur = 3000){
-  const container = safeGet('toastContainer');
-  if(!container){
-    console.warn('Toast container missing:', msg);
-    return;
-  }
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  container.appendChild(t);
-  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>{ if(container.contains(t)) container.removeChild(t); },400); }, dur);
-}
-async function safeJson(resp, fallback = {}) {
-  try {
-    if(!resp) return fallback;
-    if(!resp.ok) return fallback;
-    const j = await resp.json();
-    return j || fallback;
-  } catch(e){
-    return fallback;
-  }
-}
-function toInt(v){ return (typeof v === 'string') ? parseInt(v,10) : (v||0); }
+function getMediaType(item){ if(!item) return 'movie'; if(item._media_type) return item._media_type; return item.title ? 'movie' : 'tv'; }
+function showToast(msg, dur = 3000){ const container = safeGet('toastContainer'); if(!container){ console.warn('Toast container missing:', msg); return; } const t = document.createElement('div'); t.className='toast'; t.textContent=msg; container.appendChild(t); setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>{ if(container.contains(t)) container.removeChild(t); },400); }, dur); }
+async function safeJson(resp, fallback = {}) { try { if(!resp) return fallback; if(!resp.ok) return fallback; const j = await resp.json(); return j || fallback; } catch(e){ return fallback; } }
+function toInt(v){ const n = (typeof v === 'string') ? parseInt(v,10) : (v||0); return Number.isNaN(n) ? 0 : n; }
 
 // --- Modal utilities ---
 function createModal(htmlContent, { onClose } = {}) {
@@ -405,13 +381,8 @@ function createModal(htmlContent, { onClose } = {}) {
     </div>`;
   document.body.appendChild(modal);
   const backdrop = modal.querySelector('.app-modal-backdrop');
-  function close() {
-    try { modal.remove(); } catch(e){ modal.parentNode && modal.parentNode.removeChild(modal); }
-    if(typeof onClose === 'function') onClose();
-  }
-  backdrop.addEventListener('click', (ev) => {
-    if(ev.target === backdrop) close();
-  });
+  function close() { try{ modal.remove(); }catch(e){ modal.parentNode && modal.parentNode.removeChild(modal); } if(typeof onClose === 'function') onClose(); }
+  backdrop.addEventListener('click', (ev) => { if(ev.target === backdrop) close(); });
   return { modal, close, content: modal.querySelector('.app-modal-content') };
 }
 
@@ -419,7 +390,7 @@ function createModal(htmlContent, { onClose } = {}) {
 async function selectSeasonEpisodeModal(tvId, preselect = null) {
   try {
     const tvRes = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers:{ Authorization:`Bearer ${API_KEY}` }});
-    if(!tvRes.ok) { showToast('Failed to get show info'); return null; }
+    if(!tvRes.ok){ showToast('Failed to get show info'); return null; }
     const tvData = await tvRes.json();
     const seasons = (tvData.seasons || []).filter(s => s.season_number && s.season_number > 0);
     if(seasons.length === 0){ showToast('No seasons found'); return null; }
@@ -442,7 +413,6 @@ async function selectSeasonEpisodeModal(tvId, preselect = null) {
       </div>
     `;
     const m = createModal(html);
-
     const seasonSelect = m.content.querySelector('#__seasonSelect');
     const episodeSelect = m.content.querySelector('#__episodeSelect');
     const confirmBtn = m.content.querySelector('#__confirmBtn');
@@ -486,21 +456,39 @@ async function selectSeasonEpisodeModal(tvId, preselect = null) {
     await loadEpisodesForSeason(seasonSelect.value);
     seasonSelect.addEventListener('change', async () => { await loadEpisodesForSeason(seasonSelect.value); });
 
-    const promise = new Promise((resolve) => {
-      confirmBtn.onclick = () => {
-        const s = toInt(seasonSelect.value) || 1;
-        const e = toInt(episodeSelect.value) || 1;
-        m.close();
-        resolve({ season: s, episode: e });
-      };
+    return await new Promise((resolve) => {
+      confirmBtn.onclick = () => { const s = toInt(seasonSelect.value) || 1; const e = toInt(episodeSelect.value) || 1; m.close(); resolve({ season: s, episode: e }); };
       cancelBtn.onclick = () => { m.close(); resolve(null); };
     });
-
-    return promise;
   } catch (err) {
     console.error(err);
     showToast('Failed to open season selector');
     return null;
+  }
+}
+
+// --- Edit Continue Watching ---
+// key is the localStorage key (e.g. "12345-tv")
+async function editContinueWatching(key) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
+    const entry = saved[key];
+    if (!entry || entry.type !== 'tv') { showToast('Cannot edit this item'); return; }
+    const tvId = entry.id;
+    const pre = { season: toInt(entry.season), episode: toInt(entry.episode) };
+    const sel = await selectSeasonEpisodeModal(tvId, pre);
+    if (!sel) return; // canceled
+    // update saved entry
+    entry.season = toInt(sel.season);
+    entry.episode = toInt(sel.episode);
+    entry.timestamp = Date.now();
+    saved[key] = entry;
+    localStorage.setItem('continueWatching', JSON.stringify(saved));
+    showToast('Continue watching updated');
+    renderContinueWatching();
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to edit continue-watching');
   }
 }
 
@@ -545,7 +533,7 @@ function createCard(item){
     <img src="${imgPath}" alt="${title}">
     <div class="title">${title}</div>
     <div class="overlay"><i class="fa-solid fa-play"></i></div>`;
-  card.addEventListener('click', () => openDetailScreen(item));
+  card.addEventListener('click', () => openDetailScreen(item)); // open detail (will check saved progress)
   return card;
 }
 
@@ -616,19 +604,38 @@ function openDetailScreen(item, progress = null){
 
   if(!item._media_type) item._media_type = getMediaType(item);
 
+  // Normalize progress if provided
   if(progress && progress.season) progress.season = toInt(progress.season);
   if(progress && progress.episode) progress.episode = toInt(progress.episode);
 
-  if(item._media_type === 'tv' && progress && progress.season && progress.episode){
-    currentTV = item.id;
-    currentSeason = progress.season;
-    currentEpisode = progress.episode;
-  } else if (item._media_type === 'movie'){
+  // --- NEW: determine resume progress for this item ONLY ---
+  if (item._media_type === 'tv') {
+    // priority: explicit progress passed in -> saved localStorage entry for *this* show -> nothing (clear)
+    if (progress && progress.season && progress.episode) {
+      currentTV = item.id;
+      currentSeason = progress.season;
+      currentEpisode = progress.episode;
+    } else {
+      // try to read saved continueWatching entry for THIS show
+      const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
+      const key = `${item.id}-tv`;
+      if (saved[key] && saved[key].season && saved[key].episode) {
+        currentTV = item.id;
+        currentSeason = toInt(saved[key].season);
+        currentEpisode = toInt(saved[key].episode);
+      } else {
+        // CLEAR global TV progress because user opened a different show without passing progress
+        currentTV = currentSeason = currentEpisode = null;
+      }
+    }
+  } else {
+    // movie -> clear tv state
     currentTV = currentSeason = currentEpisode = null;
   }
 
-  if(watchBtn){
-    if(item._media_type === 'tv'){
+  // Update watch button label
+  if (watchBtn) {
+    if (item._media_type === 'tv') {
       watchBtn.textContent = (currentTV === item.id && currentSeason && currentEpisode) ? `Resume S${currentSeason}·E${currentEpisode}` : 'Watch';
     } else {
       watchBtn.textContent = 'Watch';
@@ -636,16 +643,15 @@ function openDetailScreen(item, progress = null){
 
     watchBtn.onclick = async () => {
       let url = '';
-      if(item._media_type === 'movie'){
+      if (item._media_type === 'movie') {
         url = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
-        if(nextBtn) nextBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
         currentTV = currentSeason = currentEpisode = null;
       } else {
-        if(currentTV === item.id && currentSeason && currentEpisode){
-          // resume existing
-        } else {
+        // If we already have resume progress for this show, use it; otherwise ask user
+        if (!(currentTV === item.id && currentSeason && currentEpisode)) {
           const sel = await selectSeasonEpisodeModal(item.id, null);
-          if(!sel) return;
+          if (!sel) return;
           currentTV = item.id;
           currentSeason = toInt(sel.season);
           currentEpisode = toInt(sel.episode);
@@ -654,12 +660,11 @@ function openDetailScreen(item, progress = null){
         await checkNextEpisode(item.id, currentSeason, currentEpisode);
       }
 
-      if(playerContainer) playerContainer.style.display = 'flex';
+      if (playerContainer) playerContainer.style.display = 'flex';
       const iframe = safeGet('contentPlayer');
-      if(iframe){
-        // Enforce strict sandbox so iframe cannot open new tabs/navigation
-        iframe.setAttribute('sandbox','allow-scripts allow-same-origin');
-        iframe.setAttribute('referrerpolicy','no-referrer');
+      if (iframe) {
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+        iframe.setAttribute('referrerpolicy', 'no-referrer');
         iframe.src = url;
       }
       document.body.style.overflow = 'hidden';
@@ -667,36 +672,36 @@ function openDetailScreen(item, progress = null){
     };
   }
 
-  // trailer wiring — open YouTube in NEW TAB (user requested)
-  if(trailerBtn){
+  // trailer: open in new tab
+  if (trailerBtn) {
     trailerBtn.onclick = async () => {
-      try{
+      try {
         const type = getMediaType(item);
-        const res = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/videos`, { headers:{ Authorization:`Bearer ${API_KEY}` }});
-        if(!res.ok){ showToast('Trailer not available'); return; }
+        const res = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/videos`, { headers: { Authorization: `Bearer ${API_KEY}` } });
+        if (!res.ok) { showToast('Trailer not available'); return; }
         const data = await res.json();
         const trailer = (data.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
-        if(trailer){
-          // open new tab (trusted user action triggered by click)
+        if (trailer) {
           window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank', 'noopener,noreferrer');
         } else {
           showToast('Trailer not available');
         }
-      }catch(err){
+      } catch (err) {
         console.error(err);
         showToast('Failed to load trailer');
       }
     };
   }
 
-  if(item._media_type === 'tv' && currentTV === item.id && currentSeason && currentEpisode){
-    checkNextEpisode(item.id, currentSeason, currentEpisode).catch(()=>{ if(nextBtn) nextBtn.style.display='none'; });
+  // Ensure next visibility is correct
+  if (item._media_type === 'tv' && currentTV === item.id && currentSeason && currentEpisode) {
+    checkNextEpisode(item.id, currentSeason, currentEpisode).catch(() => { if (nextBtn) nextBtn.style.display = 'none'; });
   } else {
-    if(nextBtn) nextBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
   }
 }
 
-// --- Continue Watching ---
+// --- Continue Watching (render + edit) ---
 function saveContinueWatching(item){
   const type = getMediaType(item);
   const saved = JSON.parse(localStorage.getItem('continueWatching')) || {};
@@ -733,9 +738,9 @@ async function renderContinueWatching(){
 
   results.forEach(res => {
     const k = res.key; const s = res.meta; const data = res.data;
-    const card = document.createElement('div'); card.className='cont-card';
+    const card = document.createElement('div'); card.className='cont-card'; card.style.position='relative';
     if(!data){
-      card.innerHTML = `<div style="background:#333;height:250px;"></div><button class="remove-btn" title="Remove">🗑</button>`;
+      card.innerHTML = `<div style="background:#333;height:250px;"></div><button class="remove-btn" title="Remove" style="position:absolute;right:6px;top:6px;">🗑</button>`;
       const rm = card.querySelector('.remove-btn');
       if(rm) rm.onclick = (e)=>{ e.stopPropagation(); delete saved[k]; localStorage.setItem('continueWatching', JSON.stringify(saved)); renderContinueWatching(); };
       container.appendChild(card);
@@ -744,10 +749,33 @@ async function renderContinueWatching(){
     data._media_type = s.type;
     const imgSrc = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
     const label = (s.type==='tv' && s.season && s.episode) ? `Resume S${s.season}·E${s.episode}` : '';
-    card.innerHTML = `<img src="${imgSrc}" alt=""><div class="resume-label" style="position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);padding:4px 8px;border-radius:6px;font-size:12px;">${label}</div><button class="remove-btn" title="Remove" style="position:absolute;right:6px;top:6px;">🗑</button>`;
+    card.innerHTML = `
+      <img src="${imgSrc}" alt="" style="display:block;width:100%;height:auto;">
+      <div class="resume-label" style="position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);padding:4px 8px;border-radius:6px;font-size:12px;color:#fff;">${label}</div>
+      <div style="position:absolute;right:6px;top:6px;display:flex;gap:6px;">
+        <button class="edit-btn" title="Edit" style="background:#222;color:#fff;border-radius:6px;padding:6px;">✎</button>
+        <button class="remove-btn" title="Remove" style="background:#222;color:#fff;border-radius:6px;padding:6px;">🗑</button>
+      </div>`;
+    // clicking card opens detail with progress
     card.addEventListener('click', () => openDetailScreen(data, { season: s.season, episode: s.episode }));
+
+    const editBtn = card.querySelector('.edit-btn');
+    if(editBtn) {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        editContinueWatching(k);
+      });
+    }
+
     const rm = card.querySelector('.remove-btn');
-    if(rm) rm.addEventListener('click', (e)=>{ e.stopPropagation(); delete saved[k]; localStorage.setItem('continueWatching', JSON.stringify(saved)); renderContinueWatching(); });
+    if(rm) {
+      rm.addEventListener('click', (e) => {
+        e.stopPropagation();
+        delete saved[k];
+        localStorage.setItem('continueWatching', JSON.stringify(saved));
+        renderContinueWatching();
+      });
+    }
     container.appendChild(card);
   });
 }
@@ -839,7 +867,7 @@ async function checkNextEpisode(tvId, season, episode){
       }
     }
 
-    // We keep nextBtn visible (wrap behavior implemented)
+    // Keep nextBtn visible because we implement wrapping behavior
     if(nextBtn) nextBtn.style.display = 'flex';
     return hasNext;
   }catch(err){
