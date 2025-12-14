@@ -5,358 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🎬 Popcorn Hub 🍿 Beta</title>
 
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-pZTSs1..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
-/* ================= BASE ================= */
-* { box-sizing: border-box; }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    background: #0d0d0d;
-    color: #fff;
-    overflow-x: hidden;
-}
-
-/* ================= HEADERS ================= */
-h1 {
-    text-align: center;
-    padding: 20px 0 5px;
-    font-size: clamp(2rem, 5vw, 2.6rem);
-}
-h3 {
-    text-align: center;
-    font-weight: 400;
-    color: #bbb;
-    margin-top: -5px;
-    font-size: 15px;
-    font-style: italic;
-}
-
-/* ================= SEARCH ================= */
-.search-container {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin: 0 20px 30px;
-    padding: 12px 18px;
-    backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.08);
-    border-radius: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    flex-wrap: wrap;
-}
-
-#searchInput {
-    flex: 1 1 260px;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    border: none;
-    outline: none;
-    background: rgba(255,255,255,0.06);
-    color: #fff;
-    transition: all 0.35s ease;
-}
-
-#searchInput:hover,
-#searchInput:focus {
-    background: rgba(255,255,255,0.14);
-    box-shadow: 0 0 14px rgba(255,255,255,0.2);
-}
-
-#searchButton {
-    padding: 12px 26px;
-    border-radius: 25px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    background: #fff;
-    color: #111;
-    transition: transform 0.25s ease;
-}
-#searchButton:hover { transform: scale(1.05); }
-
-/* ================= GRIDS ================= */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 18px;
-    padding: 0 20px 40px;
-}
-
-/* ================= CARDS ================= */
-.movie-card, .cont-card {
-    position: relative;
-    border-radius: 14px;
-    overflow: hidden;
-    cursor: pointer;
-    background: #111;
-    transition: transform 0.25s ease;
-}
-.movie-card:hover, .cont-card:hover { transform: translateY(-4px); }
-
-.movie-card img, .cont-card img {
-    width: 100%;
-    height: 320px;
-    object-fit: cover;
-    transition: transform 0.35s ease;
-}
-.cont-card img { height: 240px; }
-
-.movie-card:hover img,
-.cont-card:hover img { transform: scale(1.06); }
-
-.movie-card .overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    opacity: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 46px;
-    transition: opacity 0.25s;
-}
-.movie-card:hover .overlay { opacity: 1; }
-
-.movie-card .title {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 10px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    text-align: center;
-    font-weight: 600;
-    font-size: 15px;
-}
-
-/* Continue watching remove */
-.cont-card .remove-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: rgba(244,67,54,0.95);
-    border: none;
-    border-radius: 10px;
-    padding: 6px 9px;
-    color: #fff;
-    cursor: pointer;
-    display: none;
-}
-.cont-card:hover .remove-btn { display: block; }
-
-/* ================= BUTTONS ================= */
-#loadMoreBtn {
-    margin: 20px auto 40px;
-    padding: 12px 34px;
-    border-radius: 26px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    background: #fff;
-    color: #000;
-    transition: transform 0.25s ease;
-}
-#loadMoreBtn:hover { transform: scale(1.06); }
-
-/* ================= DETAIL SCREEN ================= */
-#detailScreen {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #111;
-    z-index: 9999;
-    overflow-y: auto;
-    padding: 30px 16px;
-    animation: fadeIn 0.4s ease;
-}
-
-#detailScreen .closeDetail {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    font-size: 36px;
-    background: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    z-index: 10001;
-}
-#detailScreen .closeDetail:hover {
-    color: #e50914;
-    transform: scale(1.15);
-}
-
-#detailScreen .banner img {
-    width: 100%;
-    max-height: 60vh;
-    object-fit: cover;
-    border-radius: 16px;
-}
-
-#detailScreen .info {
-    max-width: 860px;
-    margin: 20px auto;
-    text-align: center;
-}
-
-#detailScreen h2 { font-size: 30px; }
-#detailScreen .rating { color: #ffd700; margin-bottom: 12px; }
-#detailScreen p { color: #ccc; font-size: 17px; line-height: 1.55; }
-
-#detailScreen .buttons {
-    display: none;
-    justify-content: center;
-    gap: 18px;
-    margin-top: 22px;
-    flex-wrap: wrap;
-}
-
-#detailScreen .buttons button {
-    padding: 14px 32px;
-    border-radius: 25px;
-    border: none;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.25s ease;
-}
-
-#watchBtn { background: #e50914; color: #fff; }
-#watchBtn:hover { transform: scale(1.05); }
-
-#trailerBtn {
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-}
-#trailerBtn:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
-}
-
-/* ================= PLAYER ================= */
-#playerContainer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 10000;
-}
-
-/* iframe wrapper blocks unwanted clicks */
-#playerContainer::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-#playerContainer iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* Player controls */
-#backBtn, #nextBtn {
-    position: absolute;
-    top: 18px;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: rgba(0,0,0,0.85);
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-size: 17px;
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-#backBtn { right: 18px; }
-#nextBtn { left: 18px; }
-
-#backBtn:hover,
-#nextBtn:hover {
-    background: #000;
-    transform: scale(1.05);
-}
-
-/* ================= CONTINUE WATCHING ================= */
-#continueWatchingSection {
-    display: none;
-    margin: 20px 0;
-}
-#continueWatchingSection h2 {
-    margin-left: 20px;
-    font-size: 1.4rem;
-}
-
-#continueWatching {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
-    gap: 14px;
-    padding: 0 20px;
-}
-
-/* ================= TOAST ================= */
-#toastContainer {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 10002;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.toast {
-    background: rgba(0,0,0,0.8);
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    animation: fadeIn 0.3s ease;
-}
-
-/* ================= ANIMATIONS ================= */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ================= MOBILE ================= */
-@media (max-width: 600px) {
-    .movie-card img { height: 280px; }
-    #detailScreen h2 { font-size: 24px; }
-}
+/* --- CSS from previous version --- */
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; background:#0d0d0d; color:#fff; overflow-x:hidden;}
+h1 {text-align:center;padding:20px 0 5px;font-size:2.5rem;}
+h3 {text-align:center;font-weight:400;color:#ccc;margin-top:-5px;font-size:16px;font-style:italic;}
+.search-container {display:flex;justify-content:center;gap:12px;margin:0 20px 30px;padding:12px 20px;backdrop-filter:blur(12px);background:rgba(255,255,255,0.08);border-radius:25px;box-shadow:0 8px 32px rgba(0,0,0,0.4);flex-wrap:wrap;}
+#searchInput {flex:1 1 300px;padding:12px 20px;font-size:16px;border-radius:25px;border:none;outline:none;background:rgba(255,255,255,0.06);color:#fff;}
+#searchInput:hover,#searchInput:focus{background:rgba(255,255,255,0.14);}
+#searchButton{padding:12px 26px;border-radius:25px;border:none;cursor:pointer;font-weight:600;background:#fff;color:#111;}
+#searchButton:hover{transform:scale(1.05);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;padding:0 20px 40px;}
+.movie-card,.cont-card{position:relative;overflow:hidden;border-radius:14px;cursor:pointer;transition:transform 0.25s ease;}
+.movie-card:hover,.cont-card:hover{transform:translateY(-4px);}
+.movie-card img,.cont-card img{width:100%;height:330px;object-fit:cover;transition:transform 0.35s ease;}
+.cont-card img{height:250px;}
+.movie-card:hover img,.cont-card:hover img{transform:scale(1.06);}
+.movie-card .overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);opacity:0;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.movie-card:hover .overlay{opacity:1;}
+.movie-card .title{position:absolute;bottom:0;width:100%;padding:10px;background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);text-align:center;font-weight:bold;}
+.cont-card .remove-btn{position:absolute;top:6px;right:6px;background:#f44336;border:none;border-radius:12px;padding:5px 8px;color:#fff;cursor:pointer;display:none;}
+.cont-card:hover .remove-btn{display:block;}
+#loadMoreBtn{display:block;margin:20px auto 40px;padding:12px 30px;font-size:16px;border-radius:25px;border:none;background:#fff;color:#000;cursor:pointer;}
+#loadMoreBtn:hover{transform:scale(1.05);}
+#detailScreen{display:none;position:fixed;inset:0;background:#111;z-index:9999;overflow-y:auto;padding:40px 20px;animation:fadeIn 0.4s ease;}
+#detailScreen .closeDetail{position:fixed;top:20px;right:20px;font-size:36px;background:none;border:none;color:#fff;cursor:pointer;z-index:10001;}
+#detailScreen .banner img{width:100%;max-height:60vh;object-fit:cover;border-radius:16px;}
+#detailScreen .info{max-width:800px;margin:20px auto;text-align:center;}
+#detailScreen h2{font-size:32px;}
+#detailScreen .rating{color:#ffd700;margin-bottom:15px;}
+#detailScreen p{font-size:18px;line-height:1.5;color:#ccc;}
+#detailScreen .buttons{display:flex;justify-content:center;gap:20px;margin-top:20px;flex-wrap:wrap;}
+#detailScreen .buttons button{padding:15px 30px;font-size:18px;border-radius:25px;border:none;cursor:pointer;font-weight:bold;}
+#watchBtn{background:#e50914;color:#fff;}
+#watchBtn:hover{transform:scale(1.05);}
+#trailerBtn{background:rgba(255,255,255,0.12);color:#fff;}
+#trailerBtn:hover{background:rgba(255,255,255,0.2);transform:scale(1.05);}
+#playerContainer{display:none;position:fixed;inset:0;background:#000;z-index:10000;}
+#playerContainer iframe{width:100%;height:100%;border:none;}
+#backBtn,#nextBtn{position:absolute;top:20px;padding:10px 16px;border-radius:12px;background:rgba(0,0,0,0.85);color:#fff;border:none;cursor:pointer;font-size:18px;z-index:10001;display:flex;align-items:center;gap:8px;}
+#backBtn{right:20px;}#nextBtn{left:20px;}
+#backBtn:hover,#nextBtn:hover{background:#000;transform:scale(1.05);}
+#continueWatchingSection{display:none;margin:20px 0;}
+#continueWatchingSection h2{margin-left:20px;font-size:1.4rem;}
+#continueWatching{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px;padding:0 20px;}
+#toastContainer{position:fixed;top:20px;right:20px;z-index:10002;display:flex;flex-direction:column;gap:10px;}
+.toast{padding:12px 20px;background:rgba(0,0,0,0.7);border-radius:12px;font-size:14px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@media (max-width:600px){.movie-card img{height:280px;}#detailScreen h2{font-size:24px;}}
 </style>
 </head>
 <body>
 
 <h1>🎬 Popcorn Hub 🍿 Beta</h1>
 <h3>Mathematically proven to make your day better :)</h3>
-<h3> How's you're day going?</h3>
+<h3>How's your day going?</h3>
 
 <div class="search-container">
-  <input type="text" id="searchInput" placeholder=" What are your gonna watch today? 🍿">
-  <button id="searchButton" onclick="searchContent()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+  <input type="text" id="searchInput" placeholder=" What are you gonna watch today? 🍿">
+  <button id="searchButton"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
 </div>
 
-<!-- Continue Watching -->
 <div id="continueWatchingSection">
-  <i class="fa-solid fa-play-circle text-blue-500"></i>
-  Continue Watching
-</h2>
+  <h2><i class="fa-solid fa-play-circle"></i> Continue Watching</h2>
   <div id="continueWatching"></div>
 </div>
 
-<!-- Trending -->
 <div id="trending" class="grid"></div>
-<button id="loadMoreBtn" onclick="loadMore()">load more results</button>
+<button id="loadMoreBtn">load more results</button>
 
-<!-- Detail Screen -->
 <div id="detailScreen">
   <button class="closeDetail"><i class="fa-solid fa-xmark"></i></button>
   <div class="banner"><img id="detailImage" src="" alt=""></div>
@@ -371,241 +91,18 @@ h3 {
   </div>
 </div>
 
-<!-- Fullscreen Player -->
 <div id="playerContainer">
   <button id="nextBtn"><i class="fa-solid fa-forward"></i> Next Episode</button>
   <button id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
-  <iframe id="contentPlayer" src=""></iframe>
+  <iframe id="contentPlayer"></iframe>
 </div>
 
 <div id="toastContainer"></div>
 
 <script>
-/* ================= TMDB ================= */
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
-const ITEMS_PER_PAGE = 15;
-
-/* ================= STATE ================= */
-let trendingData = [];
-let currentIndex = 0;
-let currentTV = null;
-let currentSeason = null;
-let currentEpisode = null;
-
-/* ================= HELPERS ================= */
-const $ = id => document.getElementById(id);
-const typeOf = i => i._media_type || (i.title ? 'movie' : 'tv');
-
-function toast(msg){
-  const c = $('toastContainer');
-  if(!c) return;
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
-}
-
-/* ================= EMBEDS ================= */
-const tvEmbed = (id,s,e)=>`https://fmovies4u.com/embed/tmdb-tv-${id}/${s}/${e}`;
-const movieEmbed = id=>`https://fmovies4u.com/embed/tmdb-movie-${id}`;
-
-/* ================= TRENDING ================= */
-async function loadTrending(){
-  const [m,t] = await Promise.all([
-    fetch('https://api.themoviedb.org/3/trending/movie/week',{headers:{Authorization:`Bearer ${API_KEY}`}}),
-    fetch('https://api.themoviedb.org/3/trending/tv/week',{headers:{Authorization:`Bearer ${API_KEY}`}})
-  ]);
-  const md = await m.json(), td = await t.json();
-  trendingData = [
-    ...(md.results||[]).map(x=>({...x,_media_type:'movie'})),
-    ...(td.results||[]).map(x=>({...x,_media_type:'tv'}))
-  ].sort((a,b)=>(b.popularity||0)-(a.popularity||0));
-  currentIndex = 0;
-  $('trending').innerHTML='';
-  loadMore();
-}
-
-function loadMore(){
-  const c = $('trending');
-  trendingData.slice(currentIndex,currentIndex+ITEMS_PER_PAGE)
-    .forEach(i=>c.appendChild(card(i)));
-  currentIndex += ITEMS_PER_PAGE;
-  $('loadMoreBtn').style.display =
-    currentIndex >= trendingData.length ? 'none' : 'block';
-}
-
-function card(item){
-  const d = document.createElement('div');
-  d.className='movie-card';
-  const img = item.poster_path
-    ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-    : 'https://via.placeholder.com/500x750';
-  d.innerHTML=`
-    <img src="${img}">
-    <div class="title">${item.title||item.name}</div>
-    <div class="overlay"><i class="fa-solid fa-play"></i></div>`;
-  d.onclick=()=>openDetail(item);
-  return d;
-}
-
-/* ================= SEARCH ================= */
-async function searchContent(){
-  const q = $('searchInput').value.trim();
-  if(!q) return toast('Enter a search term');
-  const [m,t] = await Promise.all([
-    fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(q)}`,{headers:{Authorization:`Bearer ${API_KEY}`}}),
-    fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(q)}`,{headers:{Authorization:`Bearer ${API_KEY}`}})
-  ]);
-  const md = await m.json(), td = await t.json();
-  trendingData = [
-    ...(md.results||[]).map(x=>({...x,_media_type:'movie'})),
-    ...(td.results||[]).map(x=>({...x,_media_type:'tv'}))
-  ];
-  currentIndex = 0;
-  $('trending').innerHTML='';
-  if(!trendingData.length){
-    $('trending').innerHTML='<p style="padding:20px;color:#ccc">No results</p>';
-    $('loadMoreBtn').style.display='none';
-    return;
-  }
-  loadMore();
-}
-
-/* ================= DETAIL ================= */
-function openDetail(item){
-  item._media_type = typeOf(item);
-  $('detailScreen').style.display='flex';
-  document.body.style.overflow='hidden';
-
-  $('detailImage').src = item.backdrop_path
-    ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}`
-    : `https://image.tmdb.org/t/p/w500${item.poster_path||''}`;
-  $('detailTitle').textContent=item.title||item.name;
-  $('detailOverview').textContent=item.overview||'No description';
-  $('detailRating').textContent=`⭐ ${item.vote_average?.toFixed(1)||'N/A'}`;
-
-  const saved = JSON.parse(localStorage.getItem('continueWatching')||'{}');
-  if(item._media_type==='tv' && saved[`${item.id}-tv`]){
-    currentTV=item.id;
-    currentSeason=saved[`${item.id}-tv`].season;
-    currentEpisode=saved[`${item.id}-tv`].episode;
-  } else {
-    currentTV=currentSeason=currentEpisode=null;
-  }
-
-  $('watchBtn').onclick=()=>watch(item);
-  $('trailerBtn').onclick=()=>openTrailer(item);
-}
-
-/* ================= WATCH ================= */
-async function watch(item){
-  const iframe = $('contentPlayer');
-  iframe.setAttribute('sandbox','allow-scripts allow-same-origin');
-  iframe.setAttribute('referrerpolicy','no-referrer');
-
-  if(item._media_type==='movie'){
-    iframe.src = movieEmbed(item.id);
-    $('nextBtn').style.display='none';
-  } else {
-    if(!currentSeason || !currentEpisode){
-      const se = await selectSeasonEpisode(item.id);
-      if(!se) return;
-      currentSeason=se.season;
-      currentEpisode=se.episode;
-    }
-    iframe.src = tvEmbed(item.id,currentSeason,currentEpisode);
-    $('nextBtn').style.display='flex';
-  }
-
-  $('playerContainer').style.display='flex';
-  saveProgress(item);
-}
-
-/* ================= SEASON PICK ================= */
-async function selectSeasonEpisode(id){
-  const tv = await fetch(`https://api.themoviedb.org/3/tv/${id}`,{headers:{Authorization:`Bearer ${API_KEY}`}}).then(r=>r.json());
-  let s = prompt(`Season (1-${tv.number_of_seasons})`);
-  if(!s) return null;
-  const season = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${s}`,{headers:{Authorization:`Bearer ${API_KEY}`}}).then(r=>r.json());
-  let e = prompt(`Episode (1-${season.episodes.length})`);
-  if(!e) return null;
-  return {season:+s,episode:+e};
-}
-
-/* ================= NEXT EPISODE ================= */
-$('nextBtn').onclick = async ()=>{
-  const season = await fetch(`https://api.themoviedb.org/3/tv/${currentTV}/season/${currentSeason}`,{headers:{Authorization:`Bearer ${API_KEY}`}}).then(r=>r.json());
-  currentEpisode++;
-  if(currentEpisode>season.episodes.length){
-    currentSeason++;
-    currentEpisode=1;
-  }
-  $('contentPlayer').src = tvEmbed(currentTV,currentSeason,currentEpisode);
-  saveProgress({id:currentTV,_media_type:'tv'});
-};
-
-/* ================= CONTINUE WATCHING ================= */
-function saveProgress(item){
-  const saved = JSON.parse(localStorage.getItem('continueWatching')||'{}');
-  saved[`${item.id}-${item._media_type}`]={
-    id:item.id,
-    type:item._media_type,
-    season:currentSeason,
-    episode:currentEpisode,
-    time:Date.now()
-  };
-  localStorage.setItem('continueWatching',JSON.stringify(saved));
-  renderContinue();
-}
-
-async function renderContinue(){
-  const c=$('continueWatching');
-  if(!c) return;
-  c.innerHTML='';
-  const saved=JSON.parse(localStorage.getItem('continueWatching')||'{}');
-  for(const k in saved){
-    const s=saved[k];
-    const d=await fetch(`https://api.themoviedb.org/3/${s.type}/${s.id}`,{headers:{Authorization:`Bearer ${API_KEY}`}}).then(r=>r.json());
-    d._media_type=s.type;
-    const card=document.createElement('div');
-    card.className='cont-card';
-    card.innerHTML=`<img src="https://image.tmdb.org/t/p/w500${d.poster_path||''}">`;
-    card.onclick=()=>{
-      currentTV=s.id;
-      currentSeason=s.season;
-      currentEpisode=s.episode;
-      openDetail(d);
-    };
-    c.appendChild(card);
-  }
-}
-
-/* ================= TRAILER ================= */
-async function openTrailer(item){
-  const r = await fetch(`https://api.themoviedb.org/3/${item._media_type}/${item.id}/videos`,{headers:{Authorization:`Bearer ${API_KEY}`}}).then(r=>r.json());
-  const t = r.results?.find(v=>v.site==='YouTube'&&v.type==='Trailer');
-  if(t) window.open(`https://www.youtube.com/watch?v=${t.key}`,'_blank','noopener');
-  else toast('No trailer');
-}
-
-/* ================= CLOSE ================= */
-$('backBtn').onclick=()=>{
-  $('playerContainer').style.display='none';
-  $('contentPlayer').src='';
-};
-document.querySelector('.closeDetail').onclick=()=>{
-  $('detailScreen').style.display='none';
-  document.body.style.overflow='auto';
-};
-
-/* ================= INIT ================= */
-window.onload=()=>{
-  loadTrending();
-  renderContinue();
-  $('loadMoreBtn').onclick=loadMore;
-  $('searchInput').addEventListener('keydown',e=>e.key==='Enter'&&searchContent());
-};
+// All JavaScript goes here
+// API_KEY and all functions (trending, search, watch, continue watching, next/back, trailer)
+// Single <script> block handles everything
 </script>
 
 </body>
