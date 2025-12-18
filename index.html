@@ -455,7 +455,7 @@ playBtn.addEventListener('click', async ()=> {
 
 /* open player functions */
 function openPlayerMovie(id){
-  playerFrame.src = `https://example.com/embed/tmdb-movie-${id}`;
+  playerFrame.src = `https://fmovies4u.com/embed/tmdb-movie-${id}`;
   player.style.display = 'block';
   player.setAttribute('aria-hidden','false');
   setCookie('lastPlayed', { id, media_type: 'movie', time: Date.now() }, 30);
@@ -463,7 +463,7 @@ function openPlayerMovie(id){
 
 async function openPlayerTv(tvId, seasonNum=1, episodeNum=1){
   currentSeason = seasonNum; currentEpisode = episodeNum;
-  playerFrame.src = `https://example.com/embed/tmdb-tv-${tvId}-season/${seasonNum}-eps/${episodeNum}`;
+  playerFrame.src = `https://fmovies4u.com/embed/tmdb-tv-${tvId}-season/${seasonNum}-eps/${episodeNum}`;
   player.style.display = 'block';
   player.setAttribute('aria-hidden','false');
   saveContinue(lastDetails, seasonNum, episodeNum);
