@@ -177,417 +177,218 @@ body{
 </div>
 
 <script>
-/* =========================
-   CONFIG (using provided TMDB Bearer token)
-   ========================= */
+/**************************************
+ 🍿 Popcorn Hub Beta — FULL JS SCRIPT
+ Author: Andy 😎
+**************************************/
+
+/* ================= CONFIG ================= */
+
 const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
-const headers = { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' };
+const HEADERS = { Authorization: `Bearer ${API_KEY}` };
+const IMG = p => p ? `https://image.tmdb.org/t/p/w500${p}` : '';
 
-/* DOM shortcuts */
-const $ = id => document.getElementById(id);
-const mainGrid = $('mainGrid');
-const mainTitle = $('mainTitle');
-const searchInput = $('searchInput');
-const searchBtn = $('searchBtn');
-const homeBtn = $('homeBtn');
+/* ================= DOM ================= */
 
-const continueSection = $('continueSection');
-const continueGrid = $('continueGrid');
-const watchlistSection = $('watchlistSection');
-const watchlistGrid = $('watchlistGrid');
+const home = document.getElementById('home');
+const details = document.getElementById('details');
+const player = document.getElementById('player');
+const frame = document.getElementById('playerFrame');
 
-const detailsPage = $('details');
-const homePage = $('home');
-const detailsBack = $('detailsBack');
-const dPoster = $('dPoster');
-const dTitle = $('dTitle');
-const dOverview = $('dOverview');
-const dMeta = $('dMeta');
-const playBtn = $('playBtn');
-const trailerBtn = $('trailerBtn');
-const addBtn = $('addBtn');
+const mainGrid = document.getElementById('mainGrid');
+const continueGrid = document.getElementById('continueGrid');
+const watchlistGrid = document.getElementById('watchlistGrid');
 
-const player = $('player');
-const playerFrame = $('playerFrame');
-const playerBack = $('playerBack');
-const playerClose = $('playerClose');
-const nextEpBtn = $('nextEp');
-const prevEpBtn = $('prevEp');
+const continueSection = continueGrid.parentElement;
+const watchlistSection = watchlistGrid.parentElement;
 
-let lastDetails = null;
-let currentPlayerItem = null;
-let currentSeason = 1;
-let currentEpisode = 1;
-const tvCache = {};
+const dPoster = document.getElementById('dPoster');
+const dTitle = document.getElementById('dTitle');
+const dOverview = document.getElementById('dOverview');
 
-/* Cookie helpers */
-function setCookie(name, value, days = 60) {
-  const v = encodeURIComponent(JSON.stringify(value));
-  document.cookie = `${name}=${v};path=/;max-age=${days*24*3600};SameSite=Lax`;
+const playBtn = document.getElementById('playBtn');
+const trailerBtn = document.getElementById('trailerBtn');
+const addBtn = document.getElementById('addBtn');
+
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
+const nextBtn = document.getElementById('nextEp');
+
+/* ================= STATE ================= */
+
+let currentItem = null;
+let season = 1;
+let episode = 1;
+let tvCache = {};
+let seasonCache = {};
+
+/* ================= COOKIES ================= */
+
+function setCookie(name, val, days = 90) {
+  document.cookie = `${name}=${encodeURIComponent(JSON.stringify(val))};path=/;max-age=${days*86400}`;
 }
 function getCookie(name) {
-  const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return m ? JSON.parse(decodeURIComponent(m[2])) : null;
+  const m = document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));
+  return m ? JSON.parse(decodeURIComponent(m[2])) : [];
 }
 
-/* Block default link behavior globally (trailer will open via window.open explicitly) */
-document.addEventListener('click', e => {
-  if (e.target.tagName === 'A' && !e.target.classList.contains('trailer-link')) {
-    e.preventDefault();
-  }
-});
+/* ================= FETCH ================= */
 
-/* Utility */
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function imgPath(p, size='w500'){ return p ? `https://image.tmdb.org/t/p/${size}${p}` : ''; }
+async function fetchJSON(url){
+  const r = await fetch(url,{headers:HEADERS});
+  return await r.json();
+}
 
-/* =========================
-   UI: cards creation
-   ========================= */
-function createCard(item){
-  const root = document.createElement('div');
-  root.className = 'card';
-  const title = item.title || item.name || 'Untitled';
-  const poster = imgPath(item.poster_path, 'w500');
-  root.innerHTML = `
-    <img src="${poster}" alt="${escapeHtml(title)}">
-    <div class="overlay"><div class="play-fab" title="Play"><i class="fa-solid fa-play"></i></div></div>
-    <div class="title">${escapeHtml(title)}</div>
+/* ================= CARDS ================= */
+
+function createCard(item, removable=false, removeFn=null){
+  const c = document.createElement('div');
+  c.className = 'card';
+  c.innerHTML = `
+    <img src="${IMG(item.poster_path)}">
+    ${removable ? `<button class="remove-btn"><i class="fa fa-trash"></i></button>` : ''}
+    <div class="hover"><div class="play"><i class="fa fa-play"></i></div></div>
+    <div class="title">${item.title || item.name}</div>
   `;
-  // open details on click
-  root.addEventListener('click', () => openDetails(item));
-  // play-fab goes to details (require visiting details first)
-  root.querySelector('.play-fab').addEventListener('click', ev => {
-    ev.stopPropagation();
-    openDetails(item);
-  });
-  return root;
+  c.onclick = ()=>openDetails(item);
+  if(removable){
+    c.querySelector('.remove-btn').onclick = e=>{
+      e.stopPropagation();
+      removeFn(item.id);
+    };
+  }
+  return c;
 }
 
-/* =========================
-   Trending / Search
-   ========================= */
+/* ================= HOME ================= */
+
 async function loadTrending(){
-  mainTitle.textContent = '🔥 Trending';
-  try {
-    const res = await fetch('https://api.themoviedb.org/3/trending/all/week?language=en-US', { headers });
-    const data = await res.json();
-    mainGrid.innerHTML = '';
-    (data.results || []).slice(0,36).forEach(i => mainGrid.appendChild(createCard(i)));
-  } catch(err) {
-    console.error(err);
-    mainGrid.innerHTML = `<div class="card"><div class="title">Failed to load trending</div></div>`;
-  }
+  const d = await fetchJSON('https://api.themoviedb.org/3/trending/all/week');
+  mainGrid.innerHTML='';
+  d.results.forEach(i=>mainGrid.append(createCard(i)));
 }
 
-searchBtn.addEventListener('click', doSearch);
-searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+function loadContinue(){
+  const list = getCookie('continue');
+  continueGrid.innerHTML='';
+  if(!list.length){continueSection.style.display='none';return;}
+  continueSection.style.display='block';
+  list.forEach(i=>continueGrid.append(createCard(i,true,removeContinue)));
+}
 
-async function doSearch(){
+function loadWatchlist(){
+  const list = getCookie('watchlist');
+  watchlistGrid.innerHTML='';
+  if(!list.length){watchlistSection.style.display='none';return;}
+  watchlistSection.style.display='block';
+  list.forEach(i=>watchlistGrid.append(createCard(i,true,removeWatchlist)));
+}
+
+/* ================= SEARCH ================= */
+
+async function search(){
   const q = searchInput.value.trim();
-  if (!q) {
-    loadTrending();
-    return;
-  }
-  mainTitle.textContent = `🔎 Results for "${q}"`;
-  mainGrid.innerHTML = `<div class="card"><div class="title">Searching…</div></div>`;
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(q)}&page=1&language=en-US`, { headers });
-    const data = await res.json();
-    mainGrid.innerHTML = '';
-    const items = data.results || [];
-    if (!items.length) {
-      mainGrid.innerHTML = `<div class="card"><div class="title">No results</div></div>`;
-      return;
-    }
-    items.slice(0,36).forEach(i => mainGrid.appendChild(createCard(i)));
-  } catch(err) {
-    console.error(err);
-    mainGrid.innerHTML = `<div class="card"><div class="title">Search failed</div></div>`;
-  }
+  if(!q){loadTrending();return;}
+  const d = await fetchJSON(`https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(q)}`);
+  mainGrid.innerHTML='';
+  d.results.filter(i=>i.poster_path).forEach(i=>mainGrid.append(createCard(i)));
 }
 
-/* =========================
-   Watchlist & Continue — load, render, remove
-   ========================= */
-function loadWatchlist() {
-  const list = getCookie('watchlist') || [];
-  watchlistGrid.innerHTML = '';
-  if (!list.length) {
-    watchlistSection.classList.add('hidden');
-    return;
-  }
-  watchlistSection.classList.remove('hidden');
-  list.forEach(item => {
-    const c = document.createElement('div');
-    c.className = 'card';
-    const poster = imgPath(item.poster_path, 'w300');
-    c.innerHTML = `
-      <img src="${poster}" alt="${escapeHtml(item.title || item.name)}">
-      <button class="remove-btn" title="Remove from watchlist"><i class="fa fa-trash"></i></button>
-      <div class="title">${escapeHtml(item.title || item.name)}</div>
-    `;
-    c.addEventListener('click', () => openDetails(item));
-    c.querySelector('.remove-btn').addEventListener('click', ev => {
-      ev.stopPropagation();
-      removeWatchlist(item.id);
-    });
-    watchlistGrid.appendChild(c);
-  });
+/* ================= DETAILS ================= */
+
+function openDetails(item){
+  currentItem = item;
+  season = 1;
+  episode = 1;
+  home.style.display='none';
+  details.style.display='block';
+  dPoster.src = IMG(item.poster_path);
+  dTitle.textContent = item.title || item.name;
+  dOverview.textContent = item.overview || '';
 }
 
+function goHome(){
+  details.style.display='none';
+  home.style.display='block';
+}
+
+/* ================= WATCHLIST ================= */
+
+function toggleWatchlist(){
+  let list = getCookie('watchlist');
+  if(list.find(i=>i.id===currentItem.id)) return;
+  list.push(currentItem);
+  setCookie('watchlist',list);
+  loadWatchlist();
+}
 function removeWatchlist(id){
-  let list = getCookie('watchlist') || [];
-  list = list.filter(i => i.id !== id);
-  setCookie('watchlist', list);
+  setCookie('watchlist', getCookie('watchlist').filter(i=>i.id!==id));
   loadWatchlist();
 }
 
-function loadContinue() {
-  const list = getCookie('continue') || [];
-  continueGrid.innerHTML = '';
-  if (!list.length) {
-    continueSection.classList.add('hidden');
-    return;
-  }
-  continueSection.classList.remove('hidden');
-  list.forEach(item => {
-    const epInfo = item.season ? `S${item.season} • E${item.episode || 1}` : '';
-    const c = document.createElement('div');
-    c.className = 'card';
-    const poster = imgPath(item.poster_path, 'w300');
-    c.innerHTML = `
-      <img src="${poster}" alt="${escapeHtml(item.title || item.name)}">
-      <button class="remove-btn" title="Remove from continue"><i class="fa fa-trash"></i></button>
-      <div class="title">${escapeHtml(item.title || item.name)}</div>
-      <div class="small" style="padding:8px">${epInfo}</div>
-    `;
-    c.addEventListener('click', () => openDetails(item));
-    c.querySelector('.remove-btn').addEventListener('click', ev => {
-      ev.stopPropagation();
-      removeContinue(item.id);
-    });
-    continueGrid.appendChild(c);
-  });
-}
+/* ================= CONTINUE ================= */
 
+function saveContinue(){
+  let list = getCookie('continue').filter(i=>i.id!==currentItem.id);
+  list.unshift({...currentItem, season, episode});
+  setCookie('continue', list.slice(0,10));
+  loadContinue();
+}
 function removeContinue(id){
-  let list = getCookie('continue') || [];
-  list = list.filter(i => i.id !== id);
-  setCookie('continue', list);
+  setCookie('continue', getCookie('continue').filter(i=>i.id!==id));
   loadContinue();
 }
 
-/* Add to watchlist & save continue */
-function addToWatchlist(item){
-  const list = getCookie('watchlist') || [];
-  if (!list.find(x => x.id === item.id)) {
-    list.unshift(item);
-    setCookie('watchlist', list);
-    loadWatchlist();
+/* ================= PLAYER ================= */
+
+async function play(){
+  if(currentItem.media_type==='tv'){
+    frame.src = `https://fmovies4u.com/embed/tmdb-tv-${currentItem.id}-season/${season}-eps/${episode}`;
+  }else{
+    frame.src = `https://fmovies4u.com/embed/tmdb-movie-${currentItem.id}`;
   }
-}
-function saveContinue(item, season=1, episode=1){
-  let list = getCookie('continue') || [];
-  list = list.filter(x => x.id !== item.id);
-  const toSave = Object.assign({}, item, { season, episode });
-  list.unshift(toSave);
-  setCookie('continue', list.slice(0,12));
-  loadContinue();
+  player.style.display='block';
+  saveContinue();
 }
 
-/* =========================
-   Details page
-   ========================= */
-async function openDetails(item){
-  lastDetails = item;
-  // show details page and hide home
-  homePage.style.display = 'none';
-  detailsPage.style.display = 'block';
-  detailsPage.setAttribute('aria-hidden','false');
-  dPoster.src = imgPath(item.poster_path, 'w500');
-  dTitle.textContent = item.title || item.name || 'Untitled';
-  dOverview.textContent = item.overview || 'No overview available.';
-  dMeta.textContent = `${(item.release_date || item.first_air_date || '').slice(0,4) || ''} • ${item.media_type || ''}`;
-  scrollTo(0,0);
+function closePlayer(){
+  frame.src='';
+  player.style.display='none';
 }
-detailsBack.addEventListener('click', ()=> {
-  detailsPage.style.display = 'none';
-  detailsPage.setAttribute('aria-hidden','true');
-  homePage.style.display = 'block';
-});
 
-/* Details actions */
-addBtn.addEventListener('click', ()=> {
-  if (!lastDetails) return;
-  addToWatchlist(lastDetails);
-  alert('Added to Watchlist');
-});
-trailerBtn.addEventListener('click', async ()=> {
-  if (!lastDetails) return;
-  try {
-    const type = lastDetails.media_type === 'tv' ? 'tv' : 'movie';
-    const res = await fetch(`https://api.themoviedb.org/3/${type}/${lastDetails.id}/videos?language=en-US`, { headers });
-    const d = await res.json();
-    const t = (d.results||[]).find(v => v.type === 'Trailer') || (d.results||[])[0];
-    if (t) window.open(`https://www.youtube.com/watch?v=${t.key}`, '_blank');
-    else alert('No trailer found');
-  } catch(e){ console.error(e); alert('Trailer lookup failed'); }
-});
+/* ================= NEXT EPISODE ================= */
 
-/* =========================
-   Player: must play from details
-   ========================= */
-playBtn.addEventListener('click', async ()=> {
-  if (!lastDetails) return;
-  currentPlayerItem = lastDetails;
-  if (currentPlayerItem.media_type === 'tv') {
-    const cont = (getCookie('continue')||[]).find(x => x.id === currentPlayerItem.id);
-    currentSeason = cont?.season || 1;
-    currentEpisode = cont?.episode || 1;
-    openPlayerTv(currentPlayerItem.id, currentSeason, currentEpisode);
-  } else {
-    openPlayerMovie(currentPlayerItem.id);
+async function nextEpisode(){
+  if(currentItem.media_type!=='tv') return;
+
+  const tv = tvCache[currentItem.id] ||= await fetchJSON(`https://api.themoviedb.org/3/tv/${currentItem.id}`);
+  const s = tv.seasons.find(x=>x.season_number===season);
+  const epCount = s?.episode_count || 0;
+
+  if(episode < epCount){
+    episode++;
+  }else{
+    const next = tv.seasons.find(x=>x.season_number>season && x.episode_count>0);
+    if(!next){alert('End of series');return;}
+    season = next.season_number;
+    episode = 1;
   }
-  // hide details (player full-screen)
-  detailsPage.style.display = 'none';
-});
-
-/* open player functions */
-function openPlayerMovie(id){
-  playerFrame.src = `https://fmovies4u.com/embed/tmdb-movie-${id}`;
-  player.style.display = 'block';
-  player.setAttribute('aria-hidden','false');
-  setCookie('lastPlayed', { id, media_type: 'movie', time: Date.now() }, 30);
+  play();
 }
 
-async function openPlayerTv(tvId, seasonNum=1, episodeNum=1){
-  currentSeason = seasonNum; currentEpisode = episodeNum;
-  playerFrame.src = `https://fmovies4u.com/embed/tmdb-tv-${tvId}-season/${seasonNum}-eps/${episodeNum}`;
-  player.style.display = 'block';
-  player.setAttribute('aria-hidden','false');
-  saveContinue(lastDetails, seasonNum, episodeNum);
-  setCookie('lastPlayed', { id: tvId, media_type: 'tv', season: seasonNum, episode: episodeNum, time: Date.now() }, 30);
-}
+/* ================= EVENTS ================= */
 
-/* =========================
-   Next / Prev episode (auto-advance across seasons)
-   ========================= */
-async function fetchTvDetails(tvId){
-  if (tvCache[tvId]) return tvCache[tvId];
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`, { headers });
-    const d = await res.json();
-    tvCache[tvId] = d;
-    return d;
-  } catch(e){ console.error(e); return null; }
-}
+playBtn.onclick = play;
+addBtn.onclick = toggleWatchlist;
+searchBtn.onclick = search;
+nextBtn.onclick = nextEpisode;
 
-nextEpBtn.addEventListener('click', async ()=> {
-  if (!currentPlayerItem || currentPlayerItem.media_type !== 'tv') return;
-  const tvId = currentPlayerItem.id;
-  const tvd = await fetchTvDetails(tvId);
-  if (!tvd) { alert('Unable to fetch show info'); return; }
-  const seasons = (tvd.seasons || []).slice().sort((a,b)=>a.season_number - b.season_number);
-  let curSeason = seasons.find(s => s.season_number === currentSeason);
-  if (!curSeason || !curSeason.episode_count) {
-    try {
-      const sr = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${currentSeason}?language=en-US`, { headers });
-      const sd = await sr.json();
-      curSeason = { ...curSeason, episode_count: (sd.episodes||[]).length };
-    } catch(e){}
-  }
-  const maxEp = curSeason?.episode_count || 0;
-  if (currentEpisode < maxEp) {
-    currentEpisode++;
-    openPlayerTv(tvId, currentSeason, currentEpisode);
-  } else {
-    const nextSeason = seasons.find(s => s.season_number > currentSeason && (s.episode_count || 0) > 0);
-    if (nextSeason) {
-      currentSeason = nextSeason.season_number;
-      currentEpisode = 1;
-      openPlayerTv(tvId, currentSeason, currentEpisode);
-    } else {
-      alert('No next episode/season available.');
-    }
-  }
-});
+/* ================= INIT ================= */
 
-prevEpBtn.addEventListener('click', async ()=> {
-  if (!currentPlayerItem || currentPlayerItem.media_type !== 'tv') return;
-  const tvId = currentPlayerItem.id;
-  const tvd = await fetchTvDetails(tvId);
-  if (!tvd) { alert('Unable to fetch show info'); return; }
-  if (currentEpisode > 1) {
-    currentEpisode--;
-    openPlayerTv(tvId, currentSeason, currentEpisode);
-  } else {
-    const seasons = (tvd.seasons || []).slice().sort((a,b)=>a.season_number - b.season_number);
-    const prevSeasons = seasons.filter(s => s.season_number < currentSeason).reverse();
-    const prev = prevSeasons.find(s => (s.episode_count || 0) > 0);
-    if (prev) {
-      currentSeason = prev.season_number;
-      currentEpisode = prev.episode_count || 1;
-      openPlayerTv(tvId, currentSeason, currentEpisode);
-    } else {
-      alert('No previous episode found.');
-    }
-  }
-});
-
-/* Player top controls */
-playerBack.addEventListener('click', ()=> {
-  playerFrame.src = '';
-  player.style.display = 'none';
-  player.setAttribute('aria-hidden','true');
-  // return to details if available, otherwise home
-  if (lastDetails) {
-    detailsPage.style.display = 'block';
-  } else {
-    homePage.style.display = 'block';
-  }
-});
-playerClose.addEventListener('click', ()=> {
-  playerFrame.src = '';
-  player.style.display = 'none';
-  player.setAttribute('aria-hidden','true');
-});
-
-/* Save lastPlayed */
-function saveLastPlayed(obj){ setCookie('lastPlayed', obj, 30); }
-
-/* =========================
-   Home / init
-   ========================= */
-homeBtn.addEventListener('click', ()=> {
-  detailsPage.style.display = 'none';
-  player.style.display = 'none';
-  homePage.style.display = 'block';
-  searchInput.value = '';
-  loadTrending();
-});
-
-async function init(){
-  loadWatchlist();
-  loadContinue();
-  await loadTrending();
-}
-init();
-
-/* make Enter in search work */
-searchInput.addEventListener('keyup', e => { if (e.key === 'Enter') doSearch(); });
-
-/* small helper: allow double-click to delete from watchlist quickly (optional) */
-watchlistGrid.addEventListener('dblclick', ev => {
-  const el = ev.target.closest('.card');
-  if (!el) return;
-  const title = el.querySelector('.title')?.textContent;
-  if (!title) return;
-  let list = getCookie('watchlist') || [];
-  list = list.filter(x => (x.title || x.name) !== title);
-  setCookie('watchlist', list);
-  loadWatchlist();
-});
+loadTrending();
+loadContinue();
+loadWatchlist();
 </script>
 </body>
 </html>
