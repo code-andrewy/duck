@@ -10,34 +10,64 @@
 
 <style>
 :root{
+  /* Colors & theme */
   --bg:#060606;
   --card:#141414;
   --card-hover:#1c1c1c;
+  --card-2:#1b1b20;
   --accent:#ffffff;
   --muted:#9a9a9a;
+
+  /* Layout & shape */
   --radius:12px;
-  --ease:cubic-bezier(.2,.8,.2,1);
-  --shadow-soft:0 6px 18px rgba(0,0,0,.35);
-  --shadow-strong:0 18px 40px rgba(0,0,0,.65);
+  --container-max:1200px;
+
+  /* Motion & easing */
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --short: 150ms;
+  --med: 260ms;
+  --long: 480ms;
+
+  /* Shadows */
+  --shadow-soft: 0 6px 18px rgba(0,0,0,.35);
+  --shadow-strong: 0 18px 40px rgba(0,0,0,.65);
+
+  /* Accessibility helpers */
+  --focus-ring: rgba(255,255,255,0.10);
 }
 
-*{ box-sizing:border-box }
-html,body{ height:100% }
-
+/* ---------------- RESET & BASE ---------------- */
+*{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; }
 body{
   margin:0;
   background:
-    radial-gradient(1200px 600px at 50% -20%, #111 0%, transparent 60%),
+    radial-gradient(1200px 600px at 50% -20%, rgba(255,255,255,0.02) 0%, transparent 60%),
     linear-gradient(180deg,#040404,#0e0e0e);
-  color:#fff;
-  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  color:var(--accent);
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing:antialiased;
-  animation:fadeIn .4s ease;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  animation: baseFadeIn var(--med) var(--ease) both;
 }
 
-@keyframes fadeIn{
-  from{ opacity:0 }
-  to{ opacity:1 }
+/* smooth base fade */
+@keyframes baseFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------- SKIP LINK (accessibility) ---------------- */
+.skip-link{
+  position:absolute; left:8px; top:8px;
+  background:rgba(0,0,0,0.7); color:#fff; padding:6px 10px; border-radius:6px;
+  transform:translateY(-12px); opacity:0; transition:opacity .12s, transform .12s;
+  z-index:9999;
+}
+.skip-link:focus{
+  transform:translateY(0); opacity:1; outline: none;
+  box-shadow: 0 0 0 4px var(--focus-ring);
 }
 
 /* ---------------- HEADER ---------------- */
@@ -50,10 +80,9 @@ body{
   gap:16px;
   padding:14px 20px;
   backdrop-filter: blur(10px) saturate(1.2);
-  background:rgba(8,8,8,.75);
-  border-bottom:1px solid rgba(255,255,255,.05);
+  background:rgba(8,8,8,0.75);
+  border-bottom:1px solid rgba(255,255,255,0.04);
 }
-
 .logo{
   font-weight:800;
   display:flex;
@@ -72,20 +101,19 @@ body{
   padding:6px 10px;
   background:#111;
   border-radius:10px;
-  transition:box-shadow .2s var(--ease), background .2s;
+  transition: box-shadow var(--short) var(--ease), background var(--short);
+  will-change: box-shadow, transform;
 }
-
 .search:focus-within{
   background:#151515;
-  box-shadow:0 0 0 1px rgba(255,255,255,.15);
+  box-shadow:0 8px 30px rgba(0,0,0,.55);
 }
-
 .search input{
   flex:1;
   background:transparent;
   border:0;
   outline:0;
-  color:#fff;
+  color:var(--accent);
   padding:8px;
   font-size:14px;
 }
@@ -102,39 +130,27 @@ body{
   align-items:center;
   gap:8px;
   font-weight:600;
-  transition:
-    transform .15s var(--ease),
-    box-shadow .15s var(--ease),
-    background .15s;
+  transition: transform var(--short) var(--ease), box-shadow var(--short) var(--ease), background var(--short);
 }
+.btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+.btn:active{ transform: scale(.98); }
+.btn.secondary{ background:#2a2a2a; color:var(--accent); }
+.btn.secondary:hover{ background:#333; }
 
-.btn:hover{
-  transform:translateY(-1px);
-  box-shadow:var(--shadow-soft);
-}
-
-.btn:active{
-  transform:scale(.96);
-}
-
-.btn.secondary{
-  background:#2a2a2a;
-  color:#fff;
-}
-
-.btn.secondary:hover{
-  background:#333;
+/* focus-visible for keyboard users */
+:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  border-radius: 8px;
 }
 
 /* ---------------- LAYOUT ---------------- */
 .container{
-  max-width:1200px;
+  max-width:var(--container-max);
   margin:0 auto;
   padding:22px 18px 46px;
 }
-
-.section{ margin-bottom:28px }
-
+.section{ margin-bottom:28px; }
 .h2{
   display:flex;
   align-items:center;
@@ -147,10 +163,12 @@ body{
 /* ---------------- GRID & CARDS ---------------- */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap:14px;
+  align-items:start;
 }
 
+/* card base */
 .card{
   background:var(--card);
   border-radius:var(--radius);
@@ -158,49 +176,61 @@ body{
   cursor:pointer;
   position:relative;
   transform-origin:center;
-  transition:
-    transform .25s var(--ease),
-    box-shadow .25s var(--ease),
-    background .25s;
+  transition: transform var(--med) var(--ease), box-shadow var(--med) var(--ease), background var(--med) var(--ease);
+  will-change: transform, box-shadow;
+  /* enable keyboard focus */
+  outline: none;
 }
+.card[tabindex] { display:block; }
 
+/* decorative inner border for subtle depth */
 .card::after{
   content:"";
   position:absolute;
   inset:0;
   border-radius:inherit;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
   pointer-events:none;
 }
 
-.card:hover{
-  background:var(--card-hover);
-  transform:translateY(-8px) scale(1.02);
-  box-shadow:var(--shadow-strong);
-}
-
+/* image */
 .card img{
   width:100%;
   height:220px;
   object-fit:cover;
   display:block;
-  transition:transform .35s var(--ease), filter .35s;
+  transition: transform .6s var(--ease), filter .45s var(--ease);
+  transform-origin:center;
+  will-change: transform, filter;
 }
 
-.card:hover img{
-  transform:scale(1.08);
-  filter:brightness(.85);
-}
-
+/* title area */
 .card .title{
   padding:10px;
   font-size:14px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  user-select:none;
 }
 
-/* ---------------- OVERLAY PLAY ---------------- */
+/* hover / focus interactions */
+.card:hover, .card:focus-within{
+  background:var(--card-hover);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-strong);
+}
+.card:hover img, .card:focus-within img{
+  transform: scale(1.08);
+  filter: brightness(.86);
+}
+
+/* keyboard press state */
+.card:active{
+  transform: translateY(-4px) scale(0.995);
+}
+
+/* ---------------- OVERLAY & PLAY ---------------- */
 .overlay{
   position:absolute;
   inset:0;
@@ -208,15 +238,11 @@ body{
   justify-content:center;
   align-items:center;
   opacity:0;
-  background:linear-gradient(
-    180deg,
-    rgba(0,0,0,.2),
-    rgba(0,0,0,.65)
-  );
-  transition:opacity .25s var(--ease);
+  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.6));
+  transition: opacity .28s var(--ease);
+  pointer-events:none;
 }
-
-.card:hover .overlay{ opacity:1 }
+.card:hover .overlay, .card:focus-within .overlay{ opacity:1; pointer-events:auto; }
 
 .play-fab{
   width:58px;
@@ -227,15 +253,12 @@ body{
   display:grid;
   place-items:center;
   font-size:18px;
-  transform:scale(.85);
-  transition:
-    transform .25s var(--ease),
-    box-shadow .25s;
-  box-shadow:0 10px 30px rgba(0,0,0,.7);
+  transform: scale(.9) translateY(6px);
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
+  box-shadow: 0 10px 30px rgba(0,0,0,.7);
 }
-
-.card:hover .play-fab{
-  transform:scale(1);
+.card:hover .play-fab, .card:focus-within .play-fab{
+  transform: scale(1) translateY(0);
 }
 
 /* ---------------- REMOVE BUTTON ---------------- */
@@ -254,98 +277,96 @@ body{
   cursor:pointer;
   opacity:0;
   transform:scale(.8);
-  transition:
-    opacity .2s var(--ease),
-    transform .2s var(--ease),
-    background .2s;
+  transition: opacity .18s var(--ease), transform .18s var(--ease), background .18s;
+  z-index:5;
+}
+.card:hover .remove-btn, .card:focus-within .remove-btn{
+  opacity:1; transform:scale(1);
+}
+.remove-btn:hover{ background:#fff; color:#000; }
+
+/* ---------------- SKELETON LOADER (useful on lazy load) ---------------- */
+.skeleton{
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 100%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.2s linear infinite;
+}
+@keyframes skeletonShimmer {
+  0%{ background-position: -200% 0; }
+  100%{ background-position: 200% 0; }
 }
 
-.card:hover .remove-btn{
-  opacity:1;
-  transform:scale(1);
-}
-
-.remove-btn:hover{
-  background:#fff;
-  color:#000;
-}
+/* example skeleton usage:
+   <div class="card">
+     <div class="skeleton" style="height:220px"></div>
+     <div class="skeleton" style="height:18px;margin:10px;width:70%"></div>
+   </div>
+*/
 
 /* ---------------- DETAILS ---------------- */
-#details{ display:none; padding-bottom:40px }
-
+#details{ display:none; padding-bottom:40px; }
 .details-hero{
-  display:flex;
-  gap:22px;
-  align-items:flex-start;
+  display:flex; gap:22px; align-items:flex-start;
 }
-
 .details-hero img{
-  width:320px;
-  border-radius:14px;
-  object-fit:cover;
-  box-shadow:var(--shadow-soft);
+  width:320px; border-radius:14px; object-fit:cover; box-shadow:var(--shadow-soft);
 }
-
 .details-right{ flex:1 }
+.small{ color:var(--muted); font-size:13px }
 
-.small{
-  color:var(--muted);
-  font-size:13px;
-}
-
-/* ---------------- PLAYER ---------------- */
+/* ---------------- PLAYER (fullscreen) ---------------- */
 #player{
   display:none;
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:999;
-  animation:playerIn .3s var(--ease);
+  position:fixed; inset:0; z-index:1200;
+  background:#000; align-items:center; justify-content:center;
+  transition: opacity var(--short) var(--ease), transform var(--short) var(--ease);
 }
+#player.show{ display:flex; animation: playerIn var(--short) var(--ease) both; }
+@keyframes playerIn { from { opacity: 0; transform: scale(.996); } to { opacity:1; transform: scale(1); } }
 
-@keyframes playerIn{
-  from{ opacity:0 }
-  to{ opacity:1 }
-}
-
+/* top controls sit above iframe */
 .player-top{
-  position:fixed;
-  top:14px;
-  left:14px;
-  right:14px;
-  z-index:1001;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
+  position:fixed; top:14px; left:14px; right:14px; z-index:1300;
+  display:flex; justify-content:space-between; align-items:center; gap:8px; pointer-events:auto;
 }
-
 #player iframe{
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100vh;
-  border:0;
-  z-index:1000;
+  position:fixed; inset:0; width:100vw; height:100vh; border:0; z-index:1250;
 }
 
-/* ---------------- UTIL ---------------- */
-.hidden{ display:none !important }
+/* ensure close/controls are visible on all backgrounds */
+.player-top .btn{ box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
 
-/* ---------------- MOBILE ---------------- */
+/* ---------------- UTILITIES ---------------- */
+.hidden{ display:none !important; }
+.center{ display:grid; place-items:center; }
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width:1100px){
+  .container{ padding:20px 14px 46px; }
+  .details-hero img{ width:280px; }
+}
 @media (max-width:900px){
-  .card img{ height:180px }
-  .details-hero{ flex-direction:column }
-  .details-hero img{ width:100% }
+  .grid{ gap:12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .card img{ height:180px; }
+  .details-hero{ flex-direction:column; gap:14px; }
+  .details-hero img{ width:100%; height:auto; }
+}
+@media (max-width:480px){
+  .header{ padding:12px; gap:10px; }
+  .logo{ font-size:16px; }
+  .btn{ padding:8px 10px; }
 }
 
 /* ---------------- REDUCED MOTION ---------------- */
 @media (prefers-reduced-motion: reduce){
-  *{
-    animation:none !important;
-    transition:none !important;
-  }
+  *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 }
+
+/* ---------------- HIGH CONTRAST / LEGIBILITY (optional) ----------------
+   If you need to support high-contrast mode, uncomment or adapt rules here.
+*/
+
+/* End of stylesheet */
 </style>
 </head>
 <body>
