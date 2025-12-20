@@ -10,64 +10,42 @@
 
 <style>
 :root{
-  /* Colors & theme */
   --bg:#060606;
   --card:#141414;
   --card-hover:#1c1c1c;
-  --card-2:#1b1b20;
   --accent:#ffffff;
   --muted:#9a9a9a;
 
-  /* Layout & shape */
   --radius:12px;
-  --container-max:1200px;
+  --ease:cubic-bezier(.16,.84,.24,1);
 
-  /* Motion & easing */
-  --ease: cubic-bezier(.2,.8,.2,1);
-  --short: 150ms;
-  --med: 260ms;
-  --long: 480ms;
-
-  /* Shadows */
-  --shadow-soft: 0 6px 18px rgba(0,0,0,.35);
-  --shadow-strong: 0 18px 40px rgba(0,0,0,.65);
-
-  /* Accessibility helpers */
-  --focus-ring: rgba(255,255,255,0.10);
+  --shadow-soft:0 6px 18px rgba(0,0,0,.35);
+  --shadow-strong:0 18px 40px rgba(0,0,0,.65);
 }
 
-/* ---------------- RESET & BASE ---------------- */
-*{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-html,body{ height:100%; }
+/* ---------------- RESET ---------------- */
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body{height:100%}
+
+/* ---------------- BASE ---------------- */
 body{
   margin:0;
   background:
-    radial-gradient(1200px 600px at 50% -20%, rgba(255,255,255,0.02) 0%, transparent 60%),
+    radial-gradient(1200px 600px at 50% -20%, rgba(255,255,255,.04), transparent 60%),
     linear-gradient(180deg,#040404,#0e0e0e);
-  color:var(--accent);
-  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color:#fff;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
   -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
-  animation: baseFadeIn var(--med) var(--ease) both;
+  animation:fadeIn .4s var(--ease) both;
 }
 
-/* smooth base fade */
-@keyframes baseFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ---------------- SKIP LINK (accessibility) ---------------- */
-.skip-link{
-  position:absolute; left:8px; top:8px;
-  background:rgba(0,0,0,0.7); color:#fff; padding:6px 10px; border-radius:6px;
-  transform:translateY(-12px); opacity:0; transition:opacity .12s, transform .12s;
-  z-index:9999;
-}
-.skip-link:focus{
-  transform:translateY(0); opacity:1; outline: none;
-  box-shadow: 0 0 0 4px var(--focus-ring);
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(6px)}
+  to{opacity:1; transform:none}
 }
 
 /* ---------------- HEADER ---------------- */
@@ -79,17 +57,18 @@ body{
   align-items:center;
   gap:16px;
   padding:14px 20px;
-  backdrop-filter: blur(10px) saturate(1.2);
-  background:rgba(8,8,8,0.75);
-  border-bottom:1px solid rgba(255,255,255,0.04);
+  backdrop-filter:blur(10px) saturate(1.2);
+  background:rgba(8,8,8,.75);
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
+
 .logo{
   font-weight:800;
+  font-size:18px;
+  letter-spacing:.3px;
   display:flex;
   align-items:center;
   gap:8px;
-  font-size:18px;
-  letter-spacing:.3px;
 }
 
 /* ---------------- SEARCH ---------------- */
@@ -98,23 +77,21 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
-  padding:6px 10px;
+  padding:8px 10px;
   background:#111;
   border-radius:10px;
-  transition: box-shadow var(--short) var(--ease), background var(--short);
-  will-change: box-shadow, transform;
+  transition:box-shadow .25s var(--ease), background .25s;
 }
 .search:focus-within{
   background:#151515;
-  box-shadow:0 8px 30px rgba(0,0,0,.55);
+  box-shadow:0 10px 32px rgba(0,0,0,.55);
 }
 .search input{
   flex:1;
   background:transparent;
   border:0;
   outline:0;
-  color:var(--accent);
-  padding:8px;
+  color:#fff;
   font-size:14px;
 }
 
@@ -126,139 +103,190 @@ body{
   padding:9px 14px;
   border-radius:10px;
   cursor:pointer;
+  font-weight:600;
   display:inline-flex;
   align-items:center;
   gap:8px;
-  font-weight:600;
-  transition: transform var(--short) var(--ease), box-shadow var(--short) var(--ease), background var(--short);
+  transition:transform .15s var(--ease), box-shadow .15s var(--ease);
 }
-.btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow-soft); }
-.btn:active{ transform: scale(.98); }
-.btn.secondary{ background:#2a2a2a; color:var(--accent); }
-.btn.secondary:hover{ background:#333; }
-
-/* focus-visible for keyboard users */
-:focus-visible{
-  outline: none;
-  box-shadow: 0 0 0 4px var(--focus-ring);
-  border-radius: 8px;
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-soft);
+}
+.btn:active{transform:scale(.97)}
+.btn.secondary{
+  background:#2a2a2a;
+  color:#fff;
 }
 
 /* ---------------- LAYOUT ---------------- */
 .container{
-  max-width:var(--container-max);
+  max-width:1200px;
   margin:0 auto;
-  padding:22px 18px 46px;
+  padding:22px 18px 48px;
 }
-.section{ margin-bottom:28px; }
+
+.section{margin-bottom:28px}
+
 .h2{
   display:flex;
   align-items:center;
   gap:8px;
-  margin-bottom:14px;
   font-size:18px;
   font-weight:700;
+  margin-bottom:14px;
 }
 
-/* ---------------- GRID & CARDS ---------------- */
+/* ---------------- GRID ---------------- */
 .grid{
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
   gap:14px;
-  align-items:start;
 }
 
-/* card base */
+/* ---------------- CARD ---------------- */
 .card{
+  position:relative;
   background:var(--card);
   border-radius:var(--radius);
   overflow:hidden;
   cursor:pointer;
-  position:relative;
+  outline:none;
   transform-origin:center;
-  transition: transform var(--med) var(--ease), box-shadow var(--med) var(--ease), background var(--med) var(--ease);
-  will-change: transform, box-shadow;
-  /* enable keyboard focus */
-  outline: none;
+  transition:
+    transform .35s var(--ease),
+    box-shadow .35s var(--ease),
+    background .35s var(--ease);
 }
-.card[tabindex] { display:block; }
 
-/* decorative inner border for subtle depth */
 .card::after{
   content:"";
   position:absolute;
   inset:0;
   border-radius:inherit;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
   pointer-events:none;
 }
 
-/* image */
+.card:hover,
+.card:focus-within{
+  background:var(--card-hover);
+  transform:translateY(-12px) scale(1.025);
+  box-shadow:var(--shadow-strong);
+}
+
+/* ---------------- CARD IMAGE ---------------- */
 .card img{
   width:100%;
   height:220px;
   object-fit:cover;
   display:block;
-  transition: transform .6s var(--ease), filter .45s var(--ease);
-  transform-origin:center;
-  will-change: transform, filter;
+  transform-origin:50% 40%;
+  transition:transform .7s var(--ease), filter .45s var(--ease);
 }
 
-/* title area */
+.card:hover img,
+.card:focus-within img{
+  transform:scale(1.12) translateY(-4px);
+  filter:brightness(.84) contrast(1.05);
+}
+
+/* ---------------- CARD TITLE (DEFAULT) ---------------- */
 .card .title{
   padding:10px;
   font-size:14px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  user-select:none;
+  transition:opacity .25s var(--ease), transform .25s var(--ease);
 }
 
-/* hover / focus interactions */
-.card:hover, .card:focus-within{
-  background:var(--card-hover);
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-strong);
-}
-.card:hover img, .card:focus-within img{
-  transform: scale(1.08);
-  filter: brightness(.86);
+/* hide short title when hovering */
+.card:hover .title,
+.card:focus-within .title{
+  opacity:0;
+  transform:translateY(6px);
 }
 
-/* keyboard press state */
-.card:active{
-  transform: translateY(-4px) scale(0.995);
-}
-
-/* ---------------- OVERLAY & PLAY ---------------- */
+/* ---------------- OVERLAY ---------------- */
 .overlay{
   position:absolute;
   inset:0;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   opacity:0;
-  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.6));
-  transition: opacity .28s var(--ease);
-  pointer-events:none;
+  background:linear-gradient(
+    180deg,
+    rgba(0,0,0,.15),
+    rgba(0,0,0,.65)
+  );
+  transition:opacity .3s var(--ease);
 }
-.card:hover .overlay, .card:focus-within .overlay{ opacity:1; pointer-events:auto; }
 
+.card:hover .overlay,
+.card:focus-within .overlay{
+  opacity:1;
+}
+
+/* ---------------- PLAY BUTTON ---------------- */
 .play-fab{
-  width:58px;
-  height:58px;
+  width:56px;
+  height:56px;
   border-radius:50%;
   background:var(--accent);
   color:#000;
   display:grid;
   place-items:center;
   font-size:18px;
-  transform: scale(.9) translateY(6px);
-  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
-  box-shadow: 0 10px 30px rgba(0,0,0,.7);
+  transform:scale(.9) translateY(8px);
+  transition:transform .3s var(--ease), box-shadow .3s;
+  box-shadow:0 10px 30px rgba(0,0,0,.7);
 }
-.card:hover .play-fab, .card:focus-within .play-fab{
-  transform: scale(1) translateY(0);
+
+.card:hover .play-fab,
+.card:focus-within .play-fab{
+  transform:scale(1) translateY(0);
+}
+
+/* ---------------- FULL TITLE PANEL ---------------- */
+.card .info{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  background:linear-gradient(
+    180deg,
+    rgba(0,0,0,.25),
+    rgba(0,0,0,.75)
+  );
+  border-radius:10px;
+  padding:10px 12px;
+  opacity:0;
+  transform:translateY(10px) scale(.98);
+  backdrop-filter:blur(6px);
+  transition:opacity .3s var(--ease), transform .3s var(--ease);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+.card:hover .info,
+.card:focus-within .info{
+  opacity:1;
+  transform:none;
+}
+
+.card .info .title-full{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.2;
+  max-height:6.2em;
+  overflow:hidden;
+}
+
+.card .info .meta{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:4px;
 }
 
 /* ---------------- REMOVE BUTTON ---------------- */
@@ -276,97 +304,92 @@ body{
   place-items:center;
   cursor:pointer;
   opacity:0;
-  transform:scale(.8);
-  transition: opacity .18s var(--ease), transform .18s var(--ease), background .18s;
+  transform:scale(.85);
+  transition:opacity .2s var(--ease), transform .2s var(--ease), background .2s;
   z-index:5;
 }
-.card:hover .remove-btn, .card:focus-within .remove-btn{
-  opacity:1; transform:scale(1);
-}
-.remove-btn:hover{ background:#fff; color:#000; }
 
-/* ---------------- SKELETON LOADER (useful on lazy load) ---------------- */
-.skeleton{
-  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 100%);
-  background-size: 200% 100%;
-  animation: skeletonShimmer 1.2s linear infinite;
-}
-@keyframes skeletonShimmer {
-  0%{ background-position: -200% 0; }
-  100%{ background-position: 200% 0; }
+.card:hover .remove-btn,
+.card:focus-within .remove-btn{
+  opacity:1;
+  transform:scale(1);
 }
 
-/* example skeleton usage:
-   <div class="card">
-     <div class="skeleton" style="height:220px"></div>
-     <div class="skeleton" style="height:18px;margin:10px;width:70%"></div>
-   </div>
-*/
+.remove-btn:hover{
+  background:#fff;
+  color:#000;
+}
 
 /* ---------------- DETAILS ---------------- */
-#details{ display:none; padding-bottom:40px; }
+#details{display:none;padding-bottom:40px}
+
 .details-hero{
-  display:flex; gap:22px; align-items:flex-start;
+  display:flex;
+  gap:22px;
+  align-items:flex-start;
 }
 .details-hero img{
-  width:320px; border-radius:14px; object-fit:cover; box-shadow:var(--shadow-soft);
+  width:320px;
+  border-radius:14px;
+  box-shadow:var(--shadow-soft);
 }
-.details-right{ flex:1 }
-.small{ color:var(--muted); font-size:13px }
+.details-right{flex:1}
+.small{color:var(--muted);font-size:13px}
 
-/* ---------------- PLAYER (fullscreen) ---------------- */
+/* ---------------- PLAYER ---------------- */
 #player{
   display:none;
-  position:fixed; inset:0; z-index:1200;
-  background:#000; align-items:center; justify-content:center;
-  transition: opacity var(--short) var(--ease), transform var(--short) var(--ease);
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:1200;
 }
-#player.show{ display:flex; animation: playerIn var(--short) var(--ease) both; }
-@keyframes playerIn { from { opacity: 0; transform: scale(.996); } to { opacity:1; transform: scale(1); } }
+#player.show{
+  display:block;
+  animation:playerIn .3s var(--ease) both;
+}
+@keyframes playerIn{
+  from{opacity:0}
+  to{opacity:1}
+}
 
-/* top controls sit above iframe */
 .player-top{
-  position:fixed; top:14px; left:14px; right:14px; z-index:1300;
-  display:flex; justify-content:space-between; align-items:center; gap:8px; pointer-events:auto;
+  position:fixed;
+  top:14px;
+  left:14px;
+  right:14px;
+  z-index:1300;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
+
 #player iframe{
-  position:fixed; inset:0; width:100vw; height:100vh; border:0; z-index:1250;
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  border:0;
+  z-index:1250;
 }
 
-/* ensure close/controls are visible on all backgrounds */
-.player-top .btn{ box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+/* ---------------- UTIL ---------------- */
+.hidden{display:none!important}
 
-/* ---------------- UTILITIES ---------------- */
-.hidden{ display:none !important; }
-.center{ display:grid; place-items:center; }
-
-/* ---------------- RESPONSIVE ---------------- */
-@media (max-width:1100px){
-  .container{ padding:20px 14px 46px; }
-  .details-hero img{ width:280px; }
-}
+/* ---------------- MOBILE ---------------- */
 @media (max-width:900px){
-  .grid{ gap:12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-  .card img{ height:180px; }
-  .details-hero{ flex-direction:column; gap:14px; }
-  .details-hero img{ width:100%; height:auto; }
-}
-@media (max-width:480px){
-  .header{ padding:12px; gap:10px; }
-  .logo{ font-size:16px; }
-  .btn{ padding:8px 10px; }
+  .card img{height:180px}
+  .details-hero{flex-direction:column}
+  .details-hero img{width:100%}
 }
 
 /* ---------------- REDUCED MOTION ---------------- */
-@media (prefers-reduced-motion: reduce){
-  *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+@media (prefers-reduced-motion:reduce){
+  *{
+    animation:none!important;
+    transition:none!important;
+  }
 }
-
-/* ---------------- HIGH CONTRAST / LEGIBILITY (optional) ----------------
-   If you need to support high-contrast mode, uncomment or adapt rules here.
-*/
-
-/* End of stylesheet */
 </style>
 </head>
 <body>
