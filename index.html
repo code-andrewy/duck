@@ -151,7 +151,6 @@ body{
   border-radius:var(--radius);
   overflow:hidden;
   cursor:pointer;
-  outline:none;
   transform-origin:center;
   transition:
     transform .35s var(--ease),
@@ -168,10 +167,9 @@ body{
   pointer-events:none;
 }
 
-.card:hover,
-.card:focus-within{
+.card:hover{
   background:var(--card-hover);
-  transform:translateY(-12px) scale(1.025);
+  transform:translateY(-10px) scale(1.025);
   box-shadow:var(--shadow-strong);
 }
 
@@ -182,30 +180,21 @@ body{
   object-fit:cover;
   display:block;
   transform-origin:50% 40%;
-  transition:transform .7s var(--ease), filter .45s var(--ease);
+  transition:transform .6s var(--ease), filter .4s var(--ease);
 }
 
-.card:hover img,
-.card:focus-within img{
-  transform:scale(1.12) translateY(-4px);
-  filter:brightness(.84) contrast(1.05);
+.card:hover img{
+  transform:scale(1.08);
+  filter:brightness(.86);
 }
 
-/* ---------------- CARD TITLE (DEFAULT) ---------------- */
+/* ---------------- CARD TITLE ---------------- */
 .card .title{
   padding:10px;
   font-size:14px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  transition:opacity .25s var(--ease), transform .25s var(--ease);
-}
-
-/* hide short title when hovering */
-.card:hover .title,
-.card:focus-within .title{
-  opacity:0;
-  transform:translateY(6px);
 }
 
 /* ---------------- OVERLAY ---------------- */
@@ -224,8 +213,7 @@ body{
   transition:opacity .3s var(--ease);
 }
 
-.card:hover .overlay,
-.card:focus-within .overlay{
+.card:hover .overlay{
   opacity:1;
 }
 
@@ -239,54 +227,13 @@ body{
   display:grid;
   place-items:center;
   font-size:18px;
-  transform:scale(.9) translateY(8px);
+  transform:scale(.9) translateY(6px);
   transition:transform .3s var(--ease), box-shadow .3s;
   box-shadow:0 10px 30px rgba(0,0,0,.7);
 }
 
-.card:hover .play-fab,
-.card:focus-within .play-fab{
+.card:hover .play-fab{
   transform:scale(1) translateY(0);
-}
-
-/* ---------------- FULL TITLE PANEL ---------------- */
-.card .info{
-  position:absolute;
-  left:10px;
-  right:10px;
-  bottom:10px;
-  background:linear-gradient(
-    180deg,
-    rgba(0,0,0,.25),
-    rgba(0,0,0,.75)
-  );
-  border-radius:10px;
-  padding:10px 12px;
-  opacity:0;
-  transform:translateY(10px) scale(.98);
-  backdrop-filter:blur(6px);
-  transition:opacity .3s var(--ease), transform .3s var(--ease);
-  box-shadow:0 10px 30px rgba(0,0,0,.6);
-}
-
-.card:hover .info,
-.card:focus-within .info{
-  opacity:1;
-  transform:none;
-}
-
-.card .info .title-full{
-  font-size:15px;
-  font-weight:700;
-  line-height:1.2;
-  max-height:6.2em;
-  overflow:hidden;
-}
-
-.card .info .meta{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:4px;
 }
 
 /* ---------------- REMOVE BUTTON ---------------- */
@@ -309,8 +256,7 @@ body{
   z-index:5;
 }
 
-.card:hover .remove-btn,
-.card:focus-within .remove-btn{
+.card:hover .remove-btn{
   opacity:1;
   transform:scale(1);
 }
