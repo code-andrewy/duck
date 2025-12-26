@@ -1,918 +1,465 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🍿 Popcorn Hub Beta</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Popcorn Hub | Stream</title>
 
-<!-- Cloudflare Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 
-<style>
-:root{
-  --bg:#060606;
-  --card:#141414;
-  --card-hover:#1c1c1c;
-  --accent:#ffffff;
-  --muted:#9a9a9a;
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: #161616;
+            --card-hover: #1f1f1f;
+            --accent: #ffffff;
+            --muted: #a1a1a1;
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-  --radius:12px;
-  --ease:cubic-bezier(.16,.84,.24,1);
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255,255,255,0.03) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(255,255,255,0.05) 0, transparent 50%);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-  --shadow-soft:0 6px 18px rgba(0,0,0,.35);
-  --shadow-strong:0 18px 40px rgba(0,0,0,.65);
-}
+        /* --- HEADER --- */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px 5%;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-/* ---------------- RESET ---------------- */
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-html,body{height:100%}
+        .logo {
+            font-weight: 800;
+            font-size: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
 
-/* ---------------- BASE ---------------- */
-body{
-  margin:0;
-  background:
-    radial-gradient(1200px 600px at 50% -20%, rgba(255,255,255,.04), transparent 60%),
-    linear-gradient(180deg,#040404,#0e0e0e);
-  color:#fff;
-  font-family:Inter,"Segoe UI",Arial,sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  animation:fadeIn .4s var(--ease) both;
-}
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(6px)}
-  to{opacity:1; transform:none}
-}
+        .search-container input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            padding-right: 45px;
+            color: #fff;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
 
-/* ---------------- HEADER ---------------- */
-.header{
-  position:sticky;
-  top:0;
-  z-index:60;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:14px 20px;
-  backdrop-filter:blur(10px) saturate(1.2);
-  background:rgba(8,8,8,.75);
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
+        .search-container input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
 
-.logo{
-  font-weight:800;
-  font-size:18px;
-  letter-spacing:.3px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+        .search-container i {
+            position: absolute;
+            right: 15px;
+            color: var(--muted);
+        }
 
-/* ---------------- SEARCH ---------------- */
-.search{
-  flex:1;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-  background:#111;
-  border-radius:10px;
-  transition:box-shadow .25s var(--ease), background .25s;
-}
-.search:focus-within{
-  background:#151515;
-  box-shadow:0 10px 32px rgba(0,0,0,.55);
-}
-.search input{
-  flex:1;
-  background:transparent;
-  border:0;
-  outline:0;
-  color:#fff;
-  font-size:14px;
-}
+        /* --- GRID & CARDS --- */
+        .container { padding: 20px 5% 80px; }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 30px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-/* ---------------- BUTTONS ---------------- */
-.btn{
-  background:var(--accent);
-  color:#000;
-  border:0;
-  padding:9px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:600;
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  transition:transform .15s var(--ease), box-shadow .15s var(--ease);
-}
-.btn:hover{
-  transform:translateY(-2px);
-  box-shadow:var(--shadow-soft);
-}
-.btn:active{transform:scale(.97)}
-.btn.secondary{
-  background:#2a2a2a;
-  color:#fff;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
 
-/* ---------------- LAYOUT ---------------- */
-.container{
-  max-width:1200px;
-  margin:0 auto;
-  padding:22px 18px 48px;
-}
+        .card {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: transform 0.4s var(--ease), box-shadow 0.4s;
+            cursor: pointer;
+            position: relative;
+        }
 
-.section{margin-bottom:28px}
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow);
+            background: var(--card-hover);
+        }
 
-.h2{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:14px;
-}
+        .card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            transition: filter 0.3s;
+        }
 
-/* ---------------- GRID ---------------- */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:14px;
-}
+        .card:hover img { filter: brightness(0.7); }
 
-/* ---------------- CARD ---------------- */
-.card{
-  position:relative;
-  background:var(--card);
-  border-radius:var(--radius);
-  overflow:hidden;
-  cursor:pointer;
-  transform-origin:center;
-  transition:
-    transform .35s var(--ease),
-    box-shadow .35s var(--ease),
-    background .35s var(--ease);
-}
+        .card-info { padding: 12px; }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.card::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
-  pointer-events:none;
-}
+        .card-meta {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
 
-.card:hover{
-  background:var(--card-hover);
-  transform:translateY(-10px) scale(1.025);
-  box-shadow:var(--shadow-strong);
-}
+        /* --- DETAILS PAGE --- */
+        #details { display: none; }
+        .details-content {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
 
-/* ---------------- CARD IMAGE ---------------- */
-.card img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  display:block;
-  transform-origin:50% 40%;
-  transition:transform .6s var(--ease), filter .4s var(--ease);
-}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: 0; } }
 
-.card:hover img{
-  transform:scale(1.08);
-  filter:brightness(.86);
-}
+        .details-poster {
+            width: 300px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
 
-/* ---------------- CARD TITLE ---------------- */
-.card .title{
-  padding:10px;
-  font-size:14px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+        .details-info h1 { font-size: 42px; margin: 0 0 10px; font-weight: 800; }
+        .details-meta { color: var(--muted); margin-bottom: 20px; }
+        .overview { line-height: 1.6; color: #ccc; max-width: 700px; }
 
-/* ---------------- OVERLAY ---------------- */
-.overlay{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0;
-  background:linear-gradient(
-    180deg,
-    rgba(0,0,0,.15),
-    rgba(0,0,0,.65)
-  );
-  transition:opacity .3s var(--ease);
-}
+        .btn-group { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
 
-.card:hover .overlay{
-  opacity:1;
-}
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
 
-/* ---------------- PLAY BUTTON ---------------- */
-.play-fab{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:var(--accent);
-  color:#000;
-  display:grid;
-  place-items:center;
-  font-size:18px;
-  transform:scale(.9) translateY(6px);
-  transition:transform .3s var(--ease), box-shadow .3s;
-  box-shadow:0 10px 30px rgba(0,0,0,.7);
-}
+        .btn-primary { background: #fff; color: #000; }
+        .btn-primary:hover { transform: scale(1.05); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(10px); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
 
-.card:hover .play-fab{
-  transform:scale(1) translateY(0);
-}
+        /* --- PLAYER --- */
+        #player {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+        }
 
-/* ---------------- REMOVE BUTTON ---------------- */
-.remove-btn{
-  position:absolute;
-  top:8px;
-  right:8px;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:rgba(0,0,0,.6);
-  border:0;
-  color:#fff;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  opacity:0;
-  transform:scale(.85);
-  transition:opacity .2s var(--ease), transform .2s var(--ease), background .2s;
-  z-index:5;
-}
+        .player-header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            justify-content: space-between;
+            z-index: 2100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-.card:hover .remove-btn{
-  opacity:1;
-  transform:scale(1);
-}
+        #player:hover .player-header { opacity: 1; }
 
-.remove-btn:hover{
-  background:#fff;
-  color:#000;
-}
+        iframe { width: 100%; height: 100%; border: none; }
 
-/* ---------------- DETAILS ---------------- */
-#details{display:none;padding-bottom:40px}
+        .remove-badge {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: rgba(0,0,0,0.7);
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: grid; place-items: center;
+            z-index: 10;
+        }
 
-.details-hero{
-  display:flex;
-  gap:22px;
-  align-items:flex-start;
-}
-.details-hero img{
-  width:320px;
-  border-radius:14px;
-  box-shadow:var(--shadow-soft);
-}
-.details-right{flex:1}
-.small{color:var(--muted);font-size:13px}
+        .hidden { display: none !important; }
 
-/* ---------------- PLAYER ---------------- */
-#player{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:1200;
-}
-#player.show{
-  display:block;
-  animation:playerIn .3s var(--ease) both;
-}
-@keyframes playerIn{
-  from{opacity:0}
-  to{opacity:1}
-}
-
-.player-top{
-  position:fixed;
-  top:14px;
-  left:14px;
-  right:14px;
-  z-index:1300;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-#player iframe{
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100vh;
-  border:0;
-  z-index:1250;
-}
-
-/* ---------------- UTIL ---------------- */
-.hidden{display:none!important}
-
-/* ---------------- MOBILE ---------------- */
-@media (max-width:900px){
-  .card img{height:180px}
-  .details-hero{flex-direction:column}
-  .details-hero img{width:100%}
-}
-
-/* ---------------- REDUCED MOTION ---------------- */
-@media (prefers-reduced-motion:reduce){
-  *{
-    animation:none!important;
-    transition:none!important;
-  }
-}
-</style>
+        @media (max-width: 768px) {
+            .details-content { flex-direction: column; }
+            .details-poster { width: 100%; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">🍿 Popcorn Hub <small style="font-size:12px;color:#ddd">Beta</small></div>
-  <div class="search" role="search">
-    <input id="searchInput" placeholder="Search movies or TV shows — try 'inception'">
-    <button id="searchBtn" class="btn" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-  </div>
-  <button id="homeBtn" class="btn" title="Home"><i class="fa-solid fa-house-chimney"></i></button>
-</div>
+<header class="header">
+    <div class="logo" id="logoBtn">🍿 Popcorn Hub</div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for movies or shows...">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+</header>
 
-<!-- HOME -->
-<main id="home" class="container" aria-live="polite">
+<main id="home" class="container">
+    <section id="continueSection" class="hidden">
+        <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Continue</div>
+        <div id="continueGrid" class="grid"></div>
+    </section>
 
-  <section id="continueSection" class="section">
-    <div class="h2"><i class="fa-solid fa-clock-rotate-left"></i> Continue Watching</div>
-    <div id="continueGrid" class="grid"></div>
-  </section>
+    <section id="watchlistSection" class="hidden">
+        <div class="section-title"><i class="fa-solid fa-heart"></i> Watchlist</div>
+        <div id="watchlistGrid" class="grid"></div>
+    </section>
 
-  <section id="watchlistSection" class="section">
-    <div class="h2"><i class="fa-solid fa-heart"></i> Watchlist</div>
-    <div id="watchlistGrid" class="grid"></div>
-  </section>
-
-  <section class="section">
-    <div class="h2" id="mainTitle"><i class="fa-solid fa-fire"></i> Trending</div>
-    <div id="mainGrid" class="grid"></div>
-  </section>
-
+    <section>
+        <div class="section-title" id="mainTitle">Trending Now</div>
+        <div id="mainGrid" class="grid"></div>
+    </section>
 </main>
 
-<!-- DETAILS PAGE (full screen) -->
-<main id="details" class="container" aria-hidden="true">
-  <button id="detailsBack" class="btn secondary"><i class="fa-solid fa-arrow-left"></i> Back</button>
-
-  <div class="details-hero" style="margin-top:16px">
-    <img id="dPoster" src="" alt="Poster">
-    <div class="details-right">
-      <h1 id="dTitle"></h1>
-      <div id="dMeta" class="small" style="margin-bottom:8px"></div>
-      <p id="dOverview" class="small"></p>
-
-      <div style="margin-top:16px; display:flex; gap:8px; align-items:center">
-        <button id="playBtn" class="btn"><i class="fa-solid fa-play"></i> Play</button>
-        <button id="trailerBtn" class="btn secondary"><i class="fa-brands fa-youtube"></i> Trailer</button>
-        <button id="addBtn" class="btn secondary"><i class="fa-solid fa-plus"></i> Add to Watchlist</button>
-      </div>
+<main id="details" class="container">
+    <button class="btn btn-secondary" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <div class="details-content">
+        <img id="dPoster" class="details-poster" src="" alt="">
+        <div class="details-info">
+            <h1 id="dTitle"></h1>
+            <div id="dMeta" class="details-meta"></div>
+            <p id="dOverview" class="overview"></p>
+            <div class="btn-group">
+                <button id="playBtn" class="btn btn-primary"><i class="fa-solid fa-play"></i> Play Now</button>
+                <button id="trailerBtn" class="btn btn-secondary"><i class="fa-brands fa-youtube"></i> Trailer</button>
+                <button id="watchlistBtn" class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Watchlist</button>
+            </div>
+        </div>
     </div>
-  </div>
 </main>
 
-<!-- PLAYER (full-screen iframe) -->
-<div id="player" aria-hidden="true">
-  <div class="player-top" role="toolbar" aria-label="Player controls">
-    <div class="left">
-      <button id="playerBack" class="btn secondary"><i class="fa-solid fa-arrow-left"></i> Back</button>
+<div id="player">
+    <div class="player-header">
+        <button class="btn btn-secondary" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i> Close</button>
+        <div class="btn-group" style="margin: 0">
+            <button id="prevEp" class="btn btn-secondary"><i class="fa-solid fa-backward"></i></button>
+            <button id="nextEp" class="btn btn-secondary"><i class="fa-solid fa-forward"></i></button>
+        </div>
     </div>
-    <div class="right">
-      <button id="prevEp" class="btn secondary" title="Previous Episode"><i class="fa-solid fa-backward-step"></i></button>
-      <button id="nextEp" class="btn" title="Next Episode"><i class="fa-solid fa-forward-step"></i> </button>
-      <button id="playerClose" class="btn secondary"><i class="fa-solid fa-xmark"></i> Close</button>
-    </div>
-  </div>
-
-  <iframe id="playerFrame" title="player" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+    <iframe id="playerFrame" allowfullscreen></iframe>
 </div>
 
 <script>
-/**********************************************
- 🍿 Popcorn Hub Beta — FULL JavaScript Module
- Full drop-in script. Attach this after your HTML.
- It implements:
-  - Trending + Search (TMDB Bearer token)
-  - Home, Details page, Player (fullscreen iframe)
-  - Watchlist & Continue (cookie storage)
-  - Remove buttons for Watchlist & Continue
-  - Next / Prev episode logic including "end of season -> next season ep 1"
-  - Hide Next/Prev controls for movies
-  - All interactions required by Andy
-**********************************************/
+    const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
+    const HEADERS = { Authorization: `Bearer ${API_KEY}` };
 
-/* ================= CONFIG ================= */
-// (Using the Bearer token you provided earlier)
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDBiMDIzOWQzNGY5YzI0Yjc2MzM5Mjg2YjNlOWNiMSIsIm5iZiI6MTc0ODUwMzgzMS43NjMsInN1YiI6IjY4MzgwZDE3MDc5YTQyZTI4NzAzODYyMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ykvYVrw8wjBdjkeb-71y1n1Z8ng3xE5ciodJ6FZgrNw';
-const HEADERS = { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' };
+    let currentItem = null;
+    let currentS = 1, currentE = 1;
 
-/* ================= DOM SHORTCUTS ================= */
-const $ = id => document.getElementById(id);
-
-// Pages / containers
-const homePage = $('home');
-const detailsPage = $('details');
-const playerEl = $('player');
-
-// Grids
-const mainGrid = $('mainGrid');
-const continueGrid = $('continueGrid');
-const watchlistGrid = $('watchlistGrid');
-
-// Sections (wrappers so we can hide)
-const continueSection = continueGrid ? continueGrid.parentElement : null;
-const watchlistSection = watchlistGrid ? watchlistGrid.parentElement : null;
-
-// Details elements
-const dPoster = $('dPoster');
-const dTitle = $('dTitle');
-const dOverview = $('dOverview');
-const dMeta = $('dMeta');
-
-// Buttons / controls
-const playBtn = $('playBtn');
-const trailerBtn = $('trailerBtn');
-const addBtn = $('addBtn');
-
-const searchInput = $('searchInput');
-const searchBtn = $('searchBtn');
-const homeBtn = $('homeBtn');
-
-const nextBtn = $('nextEp');
-const prevBtn = $('prevEp');
-
-const playerFrame = $('playerFrame');
-const playerBack = $('playerBack');
-const playerClose = $('playerClose');
-
-/* ================= STATE ================= */
-let lastDetails = null;           // item shown on details page
-let currentPlayerItem = null;     // item currently playing
-let currentSeason = 1;
-let currentEpisode = 1;
-
-const tvCache = {};       // tv details cache
-const seasonCache = {};   // season details cache
-
-/* ================= UTILITIES ================= */
-function imgPath(path = '', size = 'w500') {
-  return path ? `https://image.tmdb.org/t/p/${size}${path}` : '';
-}
-
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
-
-/* ---------------- Cookie helpers ---------------- */
-function setCookie(name, value, days = 60) {
-  try {
-    const v = encodeURIComponent(JSON.stringify(value));
-    document.cookie = `${name}=${v};path=/;max-age=${days*24*3600};SameSite=Lax`;
-  } catch (e) { console.warn('setCookie error', e); }
-}
-function getCookie(name) {
-  try {
-    const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return m ? JSON.parse(decodeURIComponent(m[2])) : [];
-  } catch (e) { return []; }
-}
-
-/* ---------------- Fetch wrapper ---------------- */
-async function fetchJSON(url) {
-  const res = await fetch(url, { headers: HEADERS });
-  if (!res.ok) throw new Error(`Fetch ${url} failed: ${res.status}`);
-  return await res.json();
-}
-
-/* ================= UI: Card Creation ================= */
-function createCard(item, options = {}) {
-  // options: removable(boolean), onRemove(function)
-  const removable = Boolean(options.removable);
-  const onRemove = options.onRemove;
-
-  const root = document.createElement('div');
-  root.className = 'card';
-
-  const title = escapeHtml(item.title || item.name || 'Untitled');
-  const poster = imgPath(item.poster_path || '');
-
-  // build inner html
-  root.innerHTML = `
-    <img src="${poster}" alt="${title}">
-    ${removable ? `<button class="remove-btn" title="Remove"><i class="fa fa-trash"></i></button>` : ''}
-    <div class="overlay"><div class="play-fab" title="Play"><i class="fa-solid fa-play"></i></div></div>
-    <div class="title">${title}</div>
-  `;
-
-  // clicking card -> details page
-  root.addEventListener('click', () => openDetails(item));
-
-  // clicking remove (if present)
-  if (removable && typeof onRemove === 'function') {
-    const removeBtn = root.querySelector('.remove-btn');
-    if (removeBtn) {
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onRemove(item.id);
-      });
-    }
-  }
-
-  // clicking play-fab opens details (must visit details before play)
-  const fab = root.querySelector('.play-fab');
-  if (fab) {
-    fab.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openDetails(item);
-    });
-  }
-
-  return root;
-}
-
-/* ================= Trending & Search ================= */
-async function loadTrending() {
-  if (!mainGrid) return;
-  mainGrid.innerHTML = `<div class="card"><div class="title">Loading trending…</div></div>`;
-  try {
-    const data = await fetchJSON('https://api.themoviedb.org/3/trending/all/week?language=en-US');
-    mainGrid.innerHTML = '';
-    (data.results || []).slice(0, 36).forEach(item => {
-      if (!item.poster_path) return;
-      mainGrid.appendChild(createCard(item));
-    });
-  } catch (err) {
-    console.error(err);
-    mainGrid.innerHTML = `<div class="card"><div class="title">Failed to load trending</div></div>`;
-  }
-}
-
-async function doSearch() {
-  const q = (searchInput && searchInput.value || '').trim();
-  if (!q) { await loadTrending(); return; }
-  mainGrid.innerHTML = `<div class="card"><div class="title">Searching…</div></div>`;
-  try {
-    const data = await fetchJSON(`https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(q)}&page=1&language=en-US`);
-    mainGrid.innerHTML = '';
-    const items = data.results || [];
-    if (!items.length) {
-      mainGrid.innerHTML = `<div class="card"><div class="title">No results</div></div>`;
-      return;
-    }
-    items.slice(0, 36).forEach(item => {
-      if (!item.poster_path) return;
-      mainGrid.appendChild(createCard(item));
-    });
-  } catch (err) {
-    console.error(err);
-    mainGrid.innerHTML = `<div class="card"><div class="title">Search failed</div></div>`;
-  }
-}
-
-/* ================= Watchlist & Continue ================= */
-function loadWatchlist() {
-  const list = getCookie('watchlist') || [];
-  if (!watchlistGrid || !watchlistSection) return;
-  watchlistGrid.innerHTML = '';
-  if (!list.length) {
-    watchlistSection.classList.add('hidden');
-    return;
-  }
-  watchlistSection.classList.remove('hidden');
-  list.forEach(item => watchlistGrid.appendChild(createCard(item, { removable: true, onRemove: removeWatchlist })));
-}
-
-function loadContinue() {
-  const list = getCookie('continue') || [];
-  if (!continueGrid || !continueSection) return;
-  continueGrid.innerHTML = '';
-  if (!list.length) {
-    continueSection.classList.add('hidden');
-    return;
-  }
-  continueSection.classList.remove('hidden');
-  list.forEach(item => {
-    // ensure season/episode displayed; remove button uses removeContinue
-    const card = createCard(item, { removable: true, onRemove: removeContinue });
-    // append extra small info area for SxE
-    const info = document.createElement('div');
-    info.className = 'small';
-    info.style.padding = '8px';
-    info.textContent = (item.season ? `S${item.season} • ` : '') + `E${item.episode || 1}`;
-    card.appendChild(info);
-    continueGrid.appendChild(card);
-  });
-}
-
-function addToWatchlist(item) {
-  const list = getCookie('watchlist') || [];
-  if (!list.find(x => x.id === item.id)) {
-    list.unshift(item);
-    setCookie('watchlist', list);
-    loadWatchlist();
-  }
-}
-
-function removeWatchlist(id) {
-  const list = (getCookie('watchlist') || []).filter(i => i.id !== id);
-  setCookie('watchlist', list);
-  loadWatchlist();
-}
-
-function saveContinue(item, seasonNum = 1, episodeNum = 1) {
-  let list = getCookie('continue') || [];
-  list = list.filter(i => i.id !== item.id);
-  const toSave = Object.assign({}, item, { season: seasonNum, episode: episodeNum });
-  list.unshift(toSave);
-  setCookie('continue', list.slice(0, 12));
-  loadContinue();
-}
-
-function removeContinue(id) {
-  const list = (getCookie('continue') || []).filter(i => i.id !== id);
-  setCookie('continue', list);
-  loadContinue();
-}
-
-/* ================= Details Page (must visit before Play) ================= */
-async function openDetails(item) {
-  lastDetails = item;
-  // Hide home, show details page
-  if (homePage) homePage.style.display = 'none';
-  if (detailsPage) detailsPage.style.display = 'block';
-  if (dPoster) dPoster.src = imgPath(item.poster_path, 'w500');
-  if (dTitle) dTitle.textContent = item.title || item.name || 'Untitled';
-  if (dOverview) dOverview.textContent = item.overview || 'No overview available.';
-  if (dMeta) dMeta.textContent = `${(item.release_date || item.first_air_date || '').slice(0,4) || ''} • ${item.media_type || ''}`;
-  // Update next/prev visibility based on content type
-  updateEpisodeButtons();
-  // scroll to top for better UX
-  window.scrollTo(0, 0);
-}
-
-function goHome() {
-  if (detailsPage) detailsPage.style.display = 'none';
-  if (playerEl) playerEl.style.display = 'none';
-  if (homePage) homePage.style.display = 'block';
-}
-
-/* ================= Update Episode Buttons visibility ================= */
-function updateEpisodeButtons() {
-  // Hide Next/Prev if current item is movie, show if tv
-  const isMovie = !lastDetails ? false : (lastDetails.media_type === 'movie');
-  if (nextBtn) nextBtn.style.display = isMovie ? 'none' : 'inline-flex';
-  if (prevBtn) prevBtn.style.display = isMovie ? 'none' : 'inline-flex';
-}
-
-/* ================= Player (Play from Details only) ================= */
-async function playFromDetails() {
-  if (!lastDetails) return alert('No details selected.');
-  currentPlayerItem = lastDetails;
-  // determine season/episode from continue cookie if exists (for tv)
-  if (currentPlayerItem.media_type === 'tv') {
-    const cont = (getCookie('continue') || []).find(x => x.id === currentPlayerItem.id);
-    currentSeason = cont?.season || 1;
-    currentEpisode = cont?.episode || 1;
-    await openPlayerTv(currentPlayerItem.id, currentSeason, currentEpisode);
-  } else {
-    openPlayerMovie(currentPlayerItem.id);
-  }
-  // hide details page; player overlay is full-screen
-  if (detailsPage) detailsPage.style.display = 'none';
-}
-
-function openPlayerMovie(movieId) {
-  if (!playerEl || !playerFrame) return;
-  playerFrame.src = `https://fmovies4u.com/embed/tmdb-movie-${movieId}`;
-  playerEl.style.display = 'block';
-  // hide next/prev for movies
-  if (nextBtn) nextBtn.style.display = 'none';
-  if (prevBtn) prevBtn.style.display = 'none';
-  // save lastPlayed (cookie)
-  setCookie('lastPlayed', { id: movieId, media_type: 'movie', time: Date.now() }, 30);
-}
-
-async function openPlayerTv(tvId, seasonNum = 1, episodeNum = 1) {
-  currentSeason = Number(seasonNum) || 1;
-  currentEpisode = Number(episodeNum) || 1;
-  currentPlayerItem = currentPlayerItem || { id: tvId, media_type: 'tv' };
-
-  // set iframe src using your embed pattern
-  playerFrame.src = `https://fmovies4u.com/embed/tmdb-tv-${tvId}-season/${currentSeason}-eps/${currentEpisode}`;
-  if (playerEl) playerEl.style.display = 'block';
-
-  // show next/prev for tv
-  if (nextBtn) nextBtn.style.display = 'inline-flex';
-  if (prevBtn) prevBtn.style.display = 'inline-flex';
-
-  // Save continue & lastPlayed
-  saveContinue(lastDetails || currentPlayerItem, currentSeason, currentEpisode);
-  setCookie('lastPlayed', { id: tvId, media_type: 'tv', season: currentSeason, episode: currentEpisode, time: Date.now() }, 30);
-}
-
-/* ================= TV / Season Helpers ================= */
-async function fetchTvDetails(tvId) {
-  if (!tvId) return null;
-  if (tvCache[tvId]) return tvCache[tvId];
-  try {
-    const d = await fetchJSON(`https://api.themoviedb.org/3/tv/${tvId}?language=en-US`);
-    tvCache[tvId] = d;
-    return d;
-  } catch (e) {
-    console.error('fetchTvDetails error', e);
-    return null;
-  }
-}
-
-async function fetchSeasonDetails(tvId, seasonNumber) {
-  const key = `${tvId}-${seasonNumber}`;
-  if (seasonCache[key]) return seasonCache[key];
-  try {
-    const d = await fetchJSON(`https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?language=en-US`);
-    seasonCache[key] = d;
-    return d;
-  } catch (e) {
-    console.error('fetchSeasonDetails error', e);
-    return null;
-  }
-}
-
-/* ================= Next / Prev Episode logic ================= */
-async function goToNextEpisode() {
-  try {
-    if (!currentPlayerItem || currentPlayerItem.media_type !== 'tv') {
-      alert('No TV show currently playing.');
-      return;
-    }
-    const tvId = currentPlayerItem.id;
-    const tvd = await fetchTvDetails(tvId);
-    if (!tvd) { alert('Unable to fetch show info'); return; }
-
-    // seasons sorted
-    const seasons = (tvd.seasons || []).slice().sort((a,b) => (a.season_number || 0) - (b.season_number || 0));
-    // find cur season info
-    let cur = seasons.find(s => Number(s.season_number) === Number(currentSeason));
-    let episodeCount = cur?.episode_count || 0;
-
-    // if no episode_count, fetch season details
-    if (!episodeCount) {
-      const sd = await fetchSeasonDetails(tvId, currentSeason);
-      episodeCount = Array.isArray(sd?.episodes) ? sd.episodes.length : 0;
+    // --- Core Logic ---
+    async function fetchData(url) {
+        const res = await fetch(url, { headers: HEADERS });
+        return res.json();
     }
 
-    if (currentEpisode < episodeCount && episodeCount > 0) {
-      // next episode same season
-      currentEpisode++;
-      await openPlayerTv(tvId, currentSeason, currentEpisode);
-      return;
+    function getStorage(key) {
+        try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
     }
 
-    // find next season with episodes
-    const nextSeason = seasons.find(s => (s.season_number || 0) > Number(currentSeason) && (s.episode_count || 0) > 0);
-    if (nextSeason) {
-      // ensure it has episodes (fetch if needed)
-      let nextEpCount = nextSeason.episode_count || 0;
-      if (!nextEpCount) {
-        const sdata = await fetchSeasonDetails(tvId, nextSeason.season_number);
-        nextEpCount = Array.isArray(sdata?.episodes) ? sdata.episodes.length : 0;
-      }
-      if (nextEpCount > 0) {
-        currentSeason = nextSeason.season_number;
-        currentEpisode = 1;
-        await openPlayerTv(tvId, currentSeason, currentEpisode);
-        return;
-      }
+    function setStorage(key, val) {
+        localStorage.setItem(key, JSON.stringify(val));
     }
 
-    alert('No next episode or season available.');
-  } catch (e) {
-    console.error('goToNextEpisode', e);
-    alert('Failed to go to next episode.');
-  }
-}
-
-async function goToPrevEpisode() {
-  try {
-    if (!currentPlayerItem || currentPlayerItem.media_type !== 'tv') {
-      alert('No TV show currently playing.');
-      return;
-    }
-    const tvId = currentPlayerItem.id;
-    const tvd = await fetchTvDetails(tvId);
-    if (!tvd) { alert('Unable to fetch show info'); return; }
-
-    if (currentEpisode > 1) {
-      currentEpisode--;
-      await openPlayerTv(tvId, currentSeason, currentEpisode);
-      return;
+    // --- UI Rendering ---
+    function renderCard(item, gridId, isRemovable = false) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const type = item.media_type || (item.title ? 'movie' : 'tv');
+        
+        div.innerHTML = `
+            ${isRemovable ? `<div class="remove-badge" onclick="event.stopPropagation(); removeFromList('${gridId}', ${item.id})"><i class="fa-solid fa-xmark"></i></div>` : ''}
+            <img src="https://image.tmdb.org/t/p/w500${item.poster_path}" onerror="this.src='https://via.placeholder.com/500x750?text=No+Image'">
+            <div class="card-info">
+                <div class="card-title">${item.title || item.name}</div>
+                <div class="card-meta">${(item.release_date || item.first_air_date || '').split('-')[0]} • ${type}</div>
+            </div>
+        `;
+        div.onclick = () => showDetails(item);
+        document.getElementById(gridId).appendChild(div);
     }
 
-    // current episode is 1 -> find previous season last episode
-    const seasons = (tvd.seasons || []).slice().sort((a,b) => (a.season_number || 0) - (b.season_number || 0));
-    const prevSeasons = seasons.filter(s => (s.season_number || 0) < Number(currentSeason)).reverse();
-
-    for (const prev of prevSeasons) {
-      let epCount = prev.episode_count || 0;
-      if (!epCount) {
-        const sd = await fetchSeasonDetails(tvId, prev.season_number);
-        if (sd) epCount = Array.isArray(sd.episodes) ? sd.episodes.length : 0;
-      }
-      if (epCount > 0) {
-        currentSeason = prev.season_number;
-        currentEpisode = epCount;
-        await openPlayerTv(tvId, currentSeason, currentEpisode);
-        return;
-      }
+    async function loadHome() {
+        document.getElementById('mainGrid').innerHTML = '';
+        const data = await fetchData('https://api.themoviedb.org/3/trending/all/week');
+        data.results.forEach(i => renderCard(i, 'mainGrid'));
+        
+        updateLists();
     }
 
-    alert('No previous episode available.');
-  } catch (e) {
-    console.error('goToPrevEpisode', e);
-    alert('Failed to go to previous episode.');
-  }
-}
+    function updateLists() {
+        const watch = getStorage('pop_watchlist');
+        const cont = getStorage('pop_continue');
 
-/* ================= Player Back / Close ================= */
-function playerBackHandler() {
-  // stop player, return to details if available, otherwise home
-  if (playerFrame) playerFrame.src = '';
-  if (playerEl) playerEl.style.display = 'none';
-  if (lastDetails) {
-    if (detailsPage) detailsPage.style.display = 'block';
-  } else {
-    if (homePage) homePage.style.display = 'block';
-  }
-}
-function playerCloseHandler() {
-  if (playerFrame) playerFrame.src = '';
-  if (playerEl) playerEl.style.display = 'none';
-}
+        const wGrid = document.getElementById('watchlistGrid');
+        const cGrid = document.getElementById('continueGrid');
 
-/* ================= Trailer lookup ================= */
-async function openTrailerForLastDetails() {
-  if (!lastDetails) return alert('No item selected');
-  try {
-    const type = (lastDetails.media_type === 'tv') ? 'tv' : 'movie';
-    const data = await fetchJSON(`https://api.themoviedb.org/3/${type}/${lastDetails.id}/videos?language=en-US`);
-    const trailer = (data.results || []).find(v => v.type === 'Trailer') || (data.results || [])[0];
-    if (trailer) window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
-    else alert('No trailer found');
-  } catch (e) {
-    console.error('trailer lookup failed', e);
-    alert('Trailer lookup failed');
-  }
-}
+        wGrid.innerHTML = ''; cGrid.innerHTML = '';
 
-/* ================= Wire up events ================= */
-if (playBtn) playBtn.addEventListener('click', playFromDetails);
-if (addBtn) addBtn.addEventListener('click', () => { if (lastDetails) addToWatchlist(lastDetails); });
-if (trailerBtn) trailerBtn.addEventListener('click', openTrailerForLastDetails);
-if (searchBtn) searchBtn.addEventListener('click', doSearch);
-if (searchInput) searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
-if (homeBtn) homeBtn.addEventListener('click', () => { if (detailsPage) detailsPage.style.display = 'none'; if (playerEl) playerEl.style.display = 'none'; if (homePage) homePage.style.display = 'block'; searchInput.value = ''; loadTrending(); });
-if (nextBtn) nextBtn.addEventListener('click', goToNextEpisode);
-if (prevBtn) prevBtn.addEventListener('click', goToPrevEpisode);
-if (playerBack) playerBack.addEventListener('click', playerBackHandler);
-if (playerClose) playerClose.addEventListener('click', playerCloseHandler);
+        if (watch.length) {
+            document.getElementById('watchlistSection').classList.remove('hidden');
+            watch.forEach(i => renderCard(i, 'watchlistGrid', true));
+        } else {
+            document.getElementById('watchlistSection').classList.add('hidden');
+        }
 
-/* ================= Init ================= */
-async function init() {
-  try {
-    loadWatchlist();
-    loadContinue();
-    await loadTrending();
-    // ensure the episode buttons reflect empty/no selection initially
-    updateEpisodeButtons();
-  } catch (e) {
-    console.error('init error', e);
-  }
-}
-init();
+        if (cont.length) {
+            document.getElementById('continueSection').classList.remove('hidden');
+            cont.forEach(i => renderCard(i, 'continueGrid', true));
+        } else {
+            document.getElementById('continueSection').classList.add('hidden');
+        }
+    }
 
-/* ================= Expose some helpers for debugging if needed ================= */
-window._popcorn = {
-  fetchTvDetails, fetchSeasonDetails, goToNextEpisode, goToPrevEpisode,
-  openPlayerTv: (tvId, s, e) => openPlayerTv(tvId, s, e),
-  setLastDetails: (item) => { lastDetails = item; updateEpisodeButtons(); }
-};
+    async function showDetails(item) {
+        currentItem = item;
+        window.scrollTo(0,0);
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('details').style.display = 'block';
+        
+        document.getElementById('dPoster').src = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+        document.getElementById('dTitle').innerText = item.title || item.name;
+        document.getElementById('dOverview').innerText = item.overview;
+        
+        const type = item.media_type || (item.title ? 'movie' : 'tv');
+        document.getElementById('dMeta').innerText = `${type.toUpperCase()} • ${item.vote_average?.toFixed(1)} ⭐`;
+
+        document.getElementById('playBtn').onclick = () => startPlayer(item);
+        document.getElementById('watchlistBtn').onclick = () => toggleWatchlist(item);
+        document.getElementById('trailerBtn').onclick = () => playTrailer(item);
+    }
+
+    function goHome() {
+        document.getElementById('details').style.display = 'none';
+        document.getElementById('home').style.display = 'block';
+    }
+
+    // --- Player Logic ---
+    function startPlayer(item) {
+        const type = item.media_type || (item.title ? 'movie' : 'tv');
+        const frame = document.getElementById('playerFrame');
+        document.getElementById('player').style.display = 'block';
+
+        if (type === 'movie') {
+            frame.src = `https://fmovies4u.com/embed/tmdb-movie-${item.id}`;
+            document.getElementById('nextEp').classList.add('hidden');
+            document.getElementById('prevEp').classList.add('hidden');
+        } else {
+            const cont = getStorage('pop_continue').find(x => x.id === item.id);
+            currentS = cont?.s || 1;
+            currentE = cont?.e || 1;
+            updateTvFrame();
+            document.getElementById('nextEp').classList.remove('hidden');
+            document.getElementById('prevEp').classList.remove('hidden');
+        }
+
+        // Save to continue
+        let list = getStorage('pop_continue').filter(x => x.id !== item.id);
+        list.unshift({...item, s: currentS, e: currentE});
+        setStorage('pop_continue', list.slice(0, 10));
+    }
+
+    function updateTvFrame() {
+        document.getElementById('playerFrame').src = `https://fmovies4u.com/embed/tmdb-tv-${currentItem.id}-season/${currentS}-eps/${currentE}`;
+    }
+
+    function closePlayer() {
+        document.getElementById('player').style.display = 'none';
+        document.getElementById('playerFrame').src = '';
+        updateLists();
+    }
+
+    // --- Search ---
+    let searchTimeout;
+    document.getElementById('searchInput').oninput = (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(async () => {
+            const q = e.target.value;
+            if (!q) return loadHome();
+            const data = await fetchData(`https://api.themoviedb.org/3/search/multi?query=${q}`);
+            document.getElementById('mainGrid').innerHTML = '';
+            document.getElementById('mainTitle').innerText = `Results for "${q}"`;
+            data.results.filter(i => i.poster_path).forEach(i => renderCard(i, 'mainGrid'));
+        }, 500);
+    };
+
+    // --- Helpers ---
+    function toggleWatchlist(item) {
+        let list = getStorage('pop_watchlist');
+        if (list.some(x => x.id === item.id)) {
+            list = list.filter(x => x.id !== item.id);
+        } else {
+            list.unshift(item);
+        }
+        setStorage('pop_watchlist', list);
+        alert("Watchlist Updated");
+    }
+
+    function removeFromList(gridId, id) {
+        const key = gridId === 'watchlistGrid' ? 'pop_watchlist' : 'pop_continue';
+        let list = getStorage(key).filter(x => x.id !== id);
+        setStorage(key, list);
+        updateLists();
+    }
+
+    async function playTrailer(item) {
+        const type = item.media_type || (item.title ? 'movie' : 'tv');
+        const data = await fetchData(`https://api.themoviedb.org/3/${type}/${item.id}/videos`);
+        const trailer = data.results.find(v => v.type === 'Trailer');
+        if (trailer) window.open(`https://youtube.com/watch?v=${trailer.key}`);
+    }
+
+    document.getElementById('nextEp').onclick = () => { currentE++; updateTvFrame(); };
+    document.getElementById('prevEp').onclick = () => { if(currentE > 1) { currentE--; updateTvFrame(); } };
+    document.getElementById('logoBtn').onclick = () => { location.reload(); };
+
+    loadHome();
 </script>
 </body>
 </html>
